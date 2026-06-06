@@ -193,6 +193,7 @@ section.on{display:block}
   <div><b>勢力表排序</b><br><select id="agSort"><option value="total">總訂閱</option><option value="median">每人中位</option><option value="members">成員數</option></select></div></div>
   <div id="agKpi"></div>
   <div class="grid"><div class="card full"><h3>廠牌勢力排名</h3><div id="agTable"></div></div>
+  <div class="card full"><h3>廠牌梯隊圖</h3><p class="desc">X=總訂閱，Y=每人成員中位數，點大小=成員數；右上是總量與單人成績都強的團體。</p><div class="box tall"><canvas id="agTier"></canvas></div></div>
   <div class="card"><h3>團體 vs 個人</h3><div class="box"><canvas id="agCmp"></canvas></div></div>
   <div class="card"><h3>團體規模分布</h3><div class="box"><canvas id="agSize"></canvas></div></div>
   <div class="card full"><h3>單一團體 deep-dive</h3><div id="agDeep"></div></div></div>
@@ -665,6 +666,8 @@ function buildAgency(){
     agDeep.querySelectorAll("[data-loc]").forEach(a=>a.onclick=e=>{e.preventDefault();jumpLocate(a.dataset.loc);});}
   agSort.onchange=table; agFind.onclick=()=>deep(agQ.value); table();
   const g1=chans.filter(c=>c.g),g0=chans.filter(c=>!c.g),val=(arr,fn)=>med(arr.map(fn));
+  const tierPts=stats.filter(x=>x.members>=2&&x.total>0&&x.median>0).map(x=>({x:x.total,y:x.median,r:Math.max(4,Math.min(18,3+Math.sqrt(x.members)*3)),gn:x.gn,members:x.members,head:x.head,alive:x.alive}));
+  new Chart(agTier,{type:"scatter",data:{datasets:[{label:"廠牌/團體",data:tierPts,backgroundColor:tierPts.map(p=>p.x>=100000&&p.y>=10000?C.rate+"cc":p.y>=10000?C.green+"aa":C.blue+"88"),pointRadius:tierPts.map(p=>p.r),pointHoverRadius:tierPts.map(p=>p.r+3)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.gn}｜總訂閱 ${fmt(ctx.raw.x)}｜每人中位 ${fmt(ctx.raw.y)}｜成員 ${ctx.raw.members}｜集中 ${pctText(ctx.raw.head)}`}}},scales:{x:{type:"logarithmic",ticks:{color:TICK,callback:v=>fmt(v)},grid:{color:GRID},title:{display:true,text:"總訂閱（log）",color:TICK}},y:{type:"logarithmic",ticks:{color:TICK,callback:v=>fmt(v)},grid:{color:GRID},title:{display:true,text:"每人訂閱中位（log）",color:TICK}}}}});
   new Chart(agCmp,{type:"bar",data:{labels:["訂閱中位","成長中位%","Active%","黏著中位"],datasets:[{label:"團體",data:[val(g1,c=>c.s),val(g1,c=>((GROW.channels[c.id]||{}).mom_3m||0)*100),val(g1,c=>((GROW.channels[c.id]||{}).ac==="Active"?100:0)),val(g1,c=>(c.r&&c.s)?c.r/c.s*100:null)],backgroundColor:C.cum},{label:"個人",data:[val(g0,c=>c.s),val(g0,c=>((GROW.channels[c.id]||{}).mom_3m||0)*100),val(g0,c=>((GROW.channels[c.id]||{}).ac==="Active"?100:0)),val(g0,c=>(c.r&&c.s)?c.r/c.s*100:null)],backgroundColor:C.green}]},options:opts()});
   const labels=["1","2","3-4","5-9","10-19","20+"],counts=Array(labels.length).fill(0);stats.forEach(x=>{const i=x.members<3?x.members-1:x.members<5?2:x.members<10?3:x.members<20?4:5;counts[i]++;});
   new Chart(agSize,{type:"bar",data:{labels,datasets:[{label:"團體數",data:counts,backgroundColor:C.rate}]},options:opts()});
