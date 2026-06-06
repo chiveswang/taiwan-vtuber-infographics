@@ -94,6 +94,7 @@ for t in tl:
     subs=ii(b.get("YouTube Subscriber Count")) if b else None
     views=ii(b.get("YouTube View Count")) if b else None
     fol=ii(b.get("Twitch Follower Count")) if b else None
+    img=(raw(b,"YouTube Thumbnail URL") or raw(b,"Twitch Thumbnail URL")) if b else None
     rr=rec.get(vid,{})
     rm=recmed(rr) if vid in rec else None
     rh=rechigh(rr) if vid in rec else None
@@ -121,6 +122,7 @@ for t in tl:
         "tr":ii(rr.get("Twitch Recent Median View Count")),
         "gn":gn,
         "ac":(t.get("Activity") or "").strip(),
+        "img":img,
         "tv":best_top.get(vid),
         "cb":buckets(titles_by_id.get(vid, [])),
     })

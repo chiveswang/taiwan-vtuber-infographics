@@ -76,6 +76,7 @@ section.on{display:block}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .chip{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:6px 11px;cursor:pointer;font-size:12.5px}
 .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;background:#2a2f3d;border:1px solid var(--line)}
 </style></head>
 <body><div class="wrap">
 <h1>台灣 VTuber 產業活躍度・季度整合儀表板</h1>
@@ -563,7 +564,8 @@ function arrs(){const C=DIRDATA.channels;const g=f=>C.map(f).filter(v=>v!=null&&
     eff:g(c=>(c.v!=null&&c.s)?c.v/c.s:null),reff:g(c=>(c.r!=null&&c.s)?c.r/c.s:null)};}
 function pctile(arr,v){if(v==null||!arr.length)return null;let lo=0,hi=arr.length;
   while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<v)lo=m+1;else hi=m;}return +(lo/arr.length*100).toFixed(1);}
-function rankIn(arr,v){if(v==null||!arr.length)return null;const p=pctile(arr,v);return {pct:p,rank:Math.round((100-p)/100*arr.length)+1,n:arr.length};}
+function upperBound(arr,v){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<=v)lo=m+1;else hi=m;}return lo;}
+function rankIn(arr,v){if(v==null||!arr.length)return null;const p=pctile(arr,v),gt=arr.length-upperBound(arr,v);return {pct:p,rank:gt+1,n:arr.length};}
 function tierOf(s){if(s==null)return null;if(s>=100000)return">100k";if(s>=10000)return"10k–100k";if(s>=1000)return"1k–10k";return"<1k";}
 function findChannel(q){q=(q||"").trim();if(!q)return null;const ql=q.toLowerCase(),ch=DIRDATA.channels;
   if(/^UC[\w-]{20,}$/.test(q)){const m=ch.find(c=>c.y===q);if(m)return m;}
@@ -603,7 +605,7 @@ function renderHealth(o){
   brief.innerHTML=`<div class="faq-card"><h4>作息 / 事件一句話</h4><div class="faq-line">${st?`最常週${["一","二","三","四","五","六","日"][st.peak_weekday]} ${st.peak_hour} 點開台・最長斷更 ${st.gap_max_days} 天`:"作息資料不足"}${best?`<br>最大吸粉事件：${names[best.type]||best.type} ${best.date}（+${fmt(best.delta)} 訂閱）`:""}</div><div class="faq-meta">作息樣本：${cov}。看完整成長/作息/事件 → 切到「成長與生命週期」分頁。</div></div>`;
   const target=metricVector(o), dims=["訂閱","總觀看","Twitch","黏著","爆紅","動能"];
   const near=DIRDATA.channels.filter(c=>c.id&&c.id!==o.id).map(c=>{const v=metricVector(c);const ds=dims.filter(k=>target[k]!=null&&v[k]!=null).map(k=>[k,Math.abs(target[k]-v[k])]); if(ds.length<3)return null; const dist=Math.sqrt(ds.reduce((a,x)=>a+x[1]*x[1],0)/ds.length); ds.sort((a,b)=>a[1]-b[1]); return {c,dist,why:ds.slice(0,2).map(x=>x[0]).join("、")};}).filter(Boolean).sort((a,b)=>a.dist-b.dist).slice(0,5);
-  sim.innerHTML=`<div class="faq-card"><h4>和你體質最像的台V</h4>${near.map(x=>`<div class="faq-line">${x.c.n||x.c.t||"未命名"}・${x.why}相近</div>`).join("")||'<div class="faq-line">資料不足。</div>'}<div class="faq-meta">相似基於數據體質，非內容題材/風格。</div></div>`;
+  sim.innerHTML=`<div class="faq-card"><h4>和你體質最像的台V</h4>${near.map(x=>`<div class="faq-line">${avatar(x.c)}${escHtml(x.c.n||x.c.t||"未命名")}・${x.why}相近</div>`).join("")||'<div class="faq-line">資料不足。</div>'}<div class="faq-meta">相似基於數據體質，非內容題材/風格。</div></div>`;
   return score;
 }
 
@@ -613,6 +615,7 @@ function jumpLocate(id){
   curChannel=c; locate(Object.assign({},c,{label:c.n||c.t}));
 }
 function escHtml(s){return (s==null?"":String(s)).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function avatar(c){return c&&c.img?`<img class="avatar" src="${escHtml(c.img)}" loading="lazy" onerror="this.style.display='none'">`:"";}
 
 function buildRank(){
   const bestEvent=id=>((EVT.channels[id]||{}).events||[]).filter(e=>e.delta!=null).sort((a,b)=>b.delta-a.delta)[0];
@@ -632,7 +635,7 @@ function buildRank(){
   function pass(c){const tier=rankTier.value,na=rankNat.value,ty=rankType.value;return(!tier||tierOf(c.s)===tier)&&(!na||c.nat===na)&&(ty===""||c.g===+ty);}
   function render(){const b=boards.find(x=>x[0]===cur), n=+rankN.value;if(String(b[3]).startsWith("待")){rankList.innerHTML='<div class="note">此榜待資料：熱門影片榜需 DIR.tv；雙棲榜需 crossplatform.json。</div>';return;}
     const rows=DIRDATA.channels.filter(c=>c.id&&pass(c)).map(c=>({c,v:b[2](c),e:bestEvent(c.id)})).filter(x=>x.v!=null&&isFinite(x.v)).sort((a,b)=>b.v-a.v).slice(0,n);
-    rankList.innerHTML=`<table class="table"><thead><tr><th>#</th><th>頻道</th><th>${b[3]}</th><th>標籤</th><th>補充</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><a href="#" data-loc="${r.c.id}">${escHtml(r.c.n||r.c.t||r.c.id)}</a></td><td>${valFmt(cur,r.v)}</td><td><span class="tag">${tierOf(r.c.s)||"—"}</span><span class="tag">${escHtml(r.c.nat||"—")}</span><span class="tag">${r.c.g?"團體":"個人"}</span></td><td>${cur==="event"&&r.e?`${r.e.type} ${r.e.date} <a href="${escHtml(r.e.url)}" target="_blank">影片</a>`:""}</td></tr>`).join("")}</tbody></table><div class="footer">成長/黏著/規律為比率指標，已用門檻過濾；事件 delta 為毛估、未扣自然成長。</div>`;
+    rankList.innerHTML=`<table class="table"><thead><tr><th>#</th><th>頻道</th><th>${b[3]}</th><th>標籤</th><th>補充</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><a href="#" data-loc="${r.c.id}">${avatar(r.c)}${escHtml(r.c.n||r.c.t||r.c.id)}</a></td><td>${valFmt(cur,r.v)}</td><td><span class="tag">${tierOf(r.c.s)||"—"}</span><span class="tag">${escHtml(r.c.nat||"—")}</span><span class="tag">${r.c.g?"團體":"個人"}</span></td><td>${cur==="event"&&r.e?`${r.e.type} ${r.e.date} <a href="${escHtml(r.e.url)}" target="_blank">影片</a>`:""}</td></tr>`).join("")}</tbody></table><div class="footer">成長/黏著/規律為比率指標，已用門檻過濾；事件 delta 為毛估、未扣自然成長。</div>`;
     rankList.querySelectorAll("[data-loc]").forEach(a=>a.onclick=e=>{e.preventDefault();jumpLocate(a.dataset.loc);});}
   rankChips.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{cur=ch.dataset.k;rankChips.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===ch));render();});
   ["rankTier","rankNat","rankType","rankN"].forEach(id=>document.getElementById(id).onchange=render);render();
@@ -649,7 +652,7 @@ function buildAgency(){
     agTable.querySelectorAll("[data-ag]").forEach(a=>a.onclick=e=>{e.preventDefault();agQ.value=a.dataset.ag;deep(a.dataset.ag);});}
   function deep(gn){const st=stats.find(x=>x.gn===gn);if(!st){agStatus.textContent="找不到團體";return;}agStatus.textContent="已套用："+gn;const m=groups[gn].slice().sort((a,b)=>(b.subs_now||b.s||0)-(a.subs_now||a.s||0));
     agKpi.innerHTML=`<div class="kpis"><div class="kpi"><div class="l">成員數</div><div class="v">${st.members}</div></div><div class="kpi"><div class="l">總訂閱</div><div class="v">${fmt(st.total)}</div></div><div class="kpi"><div class="l">每人中位</div><div class="v">${fmt(st.median)}</div></div><div class="kpi"><div class="l">頭部集中</div><div class="v">${pctText(st.head)}</div></div></div>`;
-    agDeep.innerHTML=`<table class="table"><thead><tr><th>成員</th><th>訂閱</th><th>近3月</th><th>狀態</th></tr></thead><tbody>${m.map(x=>`<tr><td><a href="#" data-loc="${x.id}">${escHtml(x.n||x.id)}</a></td><td>${fmt(x.subs_now||x.s)}</td><td>${pctText(x.mom_3m)}</td><td>${escHtml(x.ac||"")}</td></tr>`).join("")}</tbody></table><div class="footer">存活率含倖存者偏差；企業/社團三分目前無標記。</div>`;
+    agDeep.innerHTML=`<table class="table"><thead><tr><th>成員</th><th>訂閱</th><th>近3月</th><th>狀態</th></tr></thead><tbody>${m.map(x=>`<tr><td><a href="#" data-loc="${x.id}">${avatar(x)}${escHtml(x.n||x.id)}</a></td><td>${fmt(x.subs_now||x.s)}</td><td>${pctText(x.mom_3m)}</td><td>${escHtml(x.ac||"")}</td></tr>`).join("")}</tbody></table><div class="footer">存活率含倖存者偏差；企業/社團三分目前無標記。</div>`;
     agDeep.querySelectorAll("[data-loc]").forEach(a=>a.onclick=e=>{e.preventDefault();jumpLocate(a.dataset.loc);});}
   agSort.onchange=table; agFind.onclick=()=>deep(agQ.value); table();
   const g1=chans.filter(c=>c.g),g0=chans.filter(c=>!c.g),val=(arr,fn)=>med(arr.map(fn));
