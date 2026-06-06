@@ -10,6 +10,7 @@ DIR_JSON = (ACT/"locate_directory.json").read_text(encoding="utf-8")
 GROW_JSON = (ACT/"growth.json").read_text(encoding="utf-8")
 EVT_JSON = (ACT/"events.json").read_text(encoding="utf-8")
 STM_JSON = (ACT/"streaming.json").read_text(encoding="utf-8")
+XPLAT_JSON = (ACT/"crossplatform.json").read_text(encoding="utf-8")
 
 HTML = r"""<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -69,6 +70,12 @@ section.on{display:block}
 .faq-line{font-size:13px;color:#cfd6e6;margin:7px 0 0}
 .faq-meta{font-size:11.5px;color:var(--muted);margin:5px 0 0}
 .faq-card a{color:var(--blue)}
+.table{width:100%;border-collapse:collapse;font-size:12.5px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+.table th{color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:6px 11px;cursor:pointer;font-size:12.5px}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style></head>
 <body><div class="wrap">
 <h1>台灣 VTuber 產業活躍度・季度整合儀表板</h1>
@@ -156,7 +163,38 @@ section.on{display:block}
   <div id="gw_traj"></div>
   <div id="gw_life"></div>
   <div id="gw_event"></div>
+  <div id="gw_cross"></div>
   <div id="gw_sched"></div>
+</section>
+
+<section id="s_rank">
+  <div class="insight">排行榜把 per-channel 指標翻成可探索的榜單。比率榜已加門檻過濾，避免小頻道用極端比例洗榜；點名稱可跳到「定位你自己」看體檢卡。</div>
+  <div class="chips" id="rankChips"></div>
+  <div class="locbar"><div><b>篩選</b><br>
+    級距 <select id="rankTier"><option value="">全部</option><option>&gt;100k</option><option>10k–100k</option><option>1k–10k</option><option>&lt;1k</option></select>
+    國籍 <select id="rankNat"><option value="">全部</option></select>
+    類型 <select id="rankType"><option value="">全部</option><option value="1">團體勢</option><option value="0">個人勢</option></select>
+    筆數 <select id="rankN"><option>15</option><option>30</option><option>50</option></select>
+  </div></div>
+  <div id="rankList"></div>
+</section>
+
+<section id="s_agency">
+  <div class="insight">用 Group Name 聚合到團體層級。Group Name 是字串，含 1 人「團」或掛名團；因此同時看總訂閱與每人中位，避免只看總量誤讀。</div>
+  <div class="locbar"><div><b>選團體 deep-dive</b><br><input id="agQ" list="agList" placeholder="團體名稱"><datalist id="agList"></datalist><button id="agFind">套用</button><div id="agStatus" class="muted" style="margin-top:6px"></div></div>
+  <div><b>勢力表排序</b><br><select id="agSort"><option value="total">總訂閱</option><option value="median">每人中位</option><option value="members">成員數</option></select></div></div>
+  <div id="agKpi"></div>
+  <div class="grid"><div class="card full"><h3>廠牌勢力排名</h3><div id="agTable"></div></div>
+  <div class="card"><h3>團體 vs 個人</h3><div class="box"><canvas id="agCmp"></canvas></div></div>
+  <div class="card"><h3>團體規模分布</h3><div class="box"><canvas id="agSize"></canvas></div></div>
+  <div class="card full"><h3>單一團體 deep-dive</h3><div id="agDeep"></div></div></div>
+</section>
+
+<section id="s_report">
+  <div class="insight">自動把各分頁關鍵數字串成一篇年度產業報告。數字即時由內嵌資料生成，可複製全文。</div>
+  <div class="locbar"><div><b>年度</b><br><select id="repYear"></select><button id="repCopy">複製全文</button><span id="repStatus" class="muted"></span></div></div>
+  <div id="reportBody"></div>
+  <details class="footer"><summary>口徑與警語</summary>數字為自動從資料生成；track-list 含倖存者偏差。黏著度、事件 delta、作息皆為 proxy 或取樣統計。本資料源不含 SC 金流、即時同接、互動率、剪輯頻道。</details>
 </section>
 
 <section id="s_locate">
@@ -192,6 +230,7 @@ const DIR = __DIR__;
 const GROW = __GROW__;
 const EVT = __EVT__;
 const STM = __STM__;
+const XPLAT = __XPLAT__;
 const fmt = n => n==null?"—":n.toLocaleString("en-US");
 const C = {tracked:"#4aa8ff",active:"#37d99a",rate:"#ffb454",yt:"#ff5a5f",tw:"#a970ff",green:"#37d99a",
   debut:"#37d99a",grad:"#ff5a5f",cum:"#7c5cff",blue:"#4aa8ff"};
@@ -330,18 +369,18 @@ function buildFaqOld(inclP){
     const total=Object.values(b).reduce((a,x)=>a+x,0);
     return total ? (b.collab||0)/total : null;
   };
-  const ratios = DIRDATA.channels.filter(c=>c.r&&c.s).map(c=>c.r/c.s).sort((a,b)=>a-b);
+  const ratios = DIRDATA.channels.filter(c=>c.r!=null&&c.s).map(c=>c.r/c.s).sort((a,b)=>a-b);
   const median = ratios.length ? ratios[Math.floor(ratios.length/2)] : null;
   const p90 = ratios.length ? ratios[Math.floor(ratios.length*0.9)] : null;
   const zombie = DIRDATA.channels.filter(c=>c.s>=50000 && c.r!=null && c.r/c.s<0.01).length;
-  const sticky = DIRDATA.channels.filter(c=>c.s>=1000 && c.s<10000 && c.r && c.r/c.s>0.3).length;
+  const sticky = DIRDATA.channels.filter(c=>c.s>=1000 && c.s<10000 && c.r!=null && c.r/c.s>0.3).length;
   const collabNow = share(cur), collabYoY = yoy ? share(yoy) : null;
   const topVidBucket = maxBucket(cur.topvid_buckets);
   const topLiveBucket = maxBucket(cur.yt_live_buckets);
 
   const perChannel = {
     q1(c){
-      if(!c.r||!c.s)return "此頻道缺近期觀看或訂閱資料，無法估黏著度。";
+      if(c.r==null||!c.s)return "此頻道缺近期觀看或訂閱資料，無法估黏著度。";
       const ratio=c.r/c.s,p=pctile(arrs().reff,ratio),prh=pctile(arrs().rh,c.rh);
       const judge=p>=90?"死忠濃度屬全體前段":p>=50?"黏著度中上":"黏著度偏低，較可能有較多無效訂閱";
       return `近期中位觀看/訂閱 = ${ratio.toFixed(3)}，黏著度贏過全體 ${p??"—"}%；爆紅力(近期最高觀看 ${fmt(c.rh)}) 贏過 ${prh??"—"}%。判讀：${judge}。`;
@@ -439,7 +478,7 @@ function buildFaq(inclP){
   const p=v=>v==null||!isFinite(v)?"—":v+"%";
   const pc=(a,v)=>p(pctile(a,v));
   const num=v=>v==null||!isFinite(v)?"—":fmt(v);
-  const ratio=(a,b)=>a&&b?a/b:null;
+  const ratio=(a,b)=>a!=null&&b?a/b:null;
   const card=(tone,q,line,meta)=>`<div class="faq-card"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="faq-badge faq-${tone}">${badgeText[tone]}</span><h4>${q}</h4></div><div class="faq-line">${line}</div><div class="faq-meta">${meta}</div></div>`;
   const yearsSince=d=>{if(!d)return "未記載"; const y=+String(d).slice(0,4); return y?((2026-y)+" 年左右"):"未記載";};
   const classify=(lm,vm)=>{if(lm==null&&vm==null)return "資料不足"; if(lm!=null&&vm==null)return "直播型"; if(vm!=null&&lm==null)return "投稿型"; if(lm>vm*1.5)return "直播型"; if(vm>lm*1.5)return "投稿型"; return "直播投稿均衡";};
@@ -521,9 +560,9 @@ let faqChannel = null;
 let gwChannel = null;
 function arrs(){const C=DIRDATA.channels;const g=f=>C.map(f).filter(v=>v!=null&&isFinite(v)).sort((a,b)=>a-b);
   return {s:g(c=>c.s),v:g(c=>c.v),f:g(c=>c.f),r:g(c=>c.r),rh:g(c=>c.rh),
-    eff:g(c=>(c.v&&c.s)?c.v/c.s:null),reff:g(c=>(c.r&&c.s)?c.r/c.s:null)};}
+    eff:g(c=>(c.v!=null&&c.s)?c.v/c.s:null),reff:g(c=>(c.r!=null&&c.s)?c.r/c.s:null)};}
 function pctile(arr,v){if(v==null||!arr.length)return null;let lo=0,hi=arr.length;
-  while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<=v)lo=m+1;else hi=m;}return +(lo/arr.length*100).toFixed(1);}
+  while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<v)lo=m+1;else hi=m;}return +(lo/arr.length*100).toFixed(1);}
 function rankIn(arr,v){if(v==null||!arr.length)return null;const p=pctile(arr,v);return {pct:p,rank:Math.round((100-p)/100*arr.length)+1,n:arr.length};}
 function tierOf(s){if(s==null)return null;if(s>=100000)return">100k";if(s>=10000)return"10k–100k";if(s>=1000)return"1k–10k";return"<1k";}
 function findChannel(q){q=(q||"").trim();if(!q)return null;const ql=q.toLowerCase(),ch=DIRDATA.channels;
@@ -544,7 +583,7 @@ function locLong(o){return o&&o.id?GROW.channels[o.id]:null;}
 function locStream(o){return o&&o.id?STM.yt.channels[o.id]:null;}
 function locEvents(o){return o&&o.id&&EVT.channels[o.id]?EVT.channels[o.id].events||[]:[];}
 function metricVector(c){
-  const A=arrs(),g=locLong(c),st=locStream(c),eff=(c.v&&c.s)?c.v/c.s:null,reff=(c.r&&c.s)?c.r/c.s:null;
+  const A=arrs(),g=locLong(c),st=locStream(c),eff=(c.v!=null&&c.s)?c.v/c.s:null,reff=(c.r!=null&&c.s)?c.r/c.s:null;
   return {訂閱:pctile(A.s,c.s),總觀看:pctile(A.v,c.v),Twitch:pctile(A.f,c.f),黏著:pctile(A.reff,reff),
     爆紅:pctile(A.rh,c.rh),動能:g?pctile(LON.mom,g.mom_3m):null,規律:st?pctile(LON.reg,regularity(st)):null,
     熱度:pctile(A.r,c.r),曝光:pctile(A.eff,eff)};
@@ -568,12 +607,72 @@ function renderHealth(o){
   return score;
 }
 
+function jumpLocate(id){
+  const c=DIRDATA.channels.find(x=>x.id===id); if(!c)return;
+  showTab("s_locate"); const q=document.getElementById("locQ"); if(q)q.value=c.n||c.y||c.t||"";
+  curChannel=c; locate(Object.assign({},c,{label:c.n||c.t}));
+}
+function escHtml(s){return (s==null?"":String(s)).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+function buildRank(){
+  const bestEvent=id=>((EVT.channels[id]||{}).events||[]).filter(e=>e.delta!=null).sort((a,b)=>b.delta-a.delta)[0];
+  const sticky=c=>(c.r&&c.s)?c.r/c.s:null, reg=c=>regularity(STM.yt.channels[c.id]);
+  const boards=[["subs","訂閱 Top",c=>c.s,"訂閱"],["views","總觀看 Top",c=>c.v,"觀看"],["tw","Twitch 追隨 Top",c=>c.f,"追隨"],
+    ["mom","成長最快",c=>c.s>=5000&&GROW.channels[c.id]?GROW.channels[c.id].mom_3m:null,"近3月"],
+    ["cagr","年化成長",c=>c.s>=5000&&GROW.channels[c.id]?GROW.channels[c.id].cagr_yr:null,"年化"],
+    ["sticky","最黏",c=>c.s>=1000?sticky(c):null,"r/s"],["burst","爆紅力",c=>c.rh,"最高觀看"],
+    ["event","最大吸粉事件",c=>{const e=bestEvent(c.id);return e?e.delta:null;},"delta"],
+    ["rookie","出道黑馬",c=>{const g=GROW.channels[c.id]; if(!g||!c.d)return null; const m=monthsBetween(new Date(c.d),new Date(GROW.months[GROW.months.length-1]+"-01")); return m<=18?g.subs_now:null;},"訂閱"],
+    ["regular","最規律開台",c=>{const s=STM.yt.channels[c.id]; return s&&s.n_streams>=10?reg(c):null;},"規律"],
+    ["tv","熱門影片 Top",c=>c.tv&&c.tv.vc,"待資料"],["dual","雙棲最強",c=>XPLAT.channels[c.id]?XPLAT.channels[c.id].yt_pct+XPLAT.channels[c.id].tw_pct:null,"雙平台百分位和"]];
+  let cur="subs";
+  rankNat.innerHTML='<option value="">全部</option>'+[...new Set(DIRDATA.channels.map(c=>c.nat).filter(Boolean))].sort().map(n=>`<option>${escHtml(n)}</option>`).join("");
+  rankChips.innerHTML=boards.map((b,i)=>`<button class="chip ${i?'':'on'}" data-k="${b[0]}">${b[1]}</button>`).join("");
+  const valFmt=(k,v)=>["mom","cagr","sticky","regular"].includes(k)?pctText(v):fmt(v);
+  function pass(c){const tier=rankTier.value,na=rankNat.value,ty=rankType.value;return(!tier||tierOf(c.s)===tier)&&(!na||c.nat===na)&&(ty===""||c.g===+ty);}
+  function render(){const b=boards.find(x=>x[0]===cur), n=+rankN.value;if(String(b[3]).startsWith("待")){rankList.innerHTML='<div class="note">此榜待資料：熱門影片榜需 DIR.tv；雙棲榜需 crossplatform.json。</div>';return;}
+    const rows=DIRDATA.channels.filter(c=>c.id&&pass(c)).map(c=>({c,v:b[2](c),e:bestEvent(c.id)})).filter(x=>x.v!=null&&isFinite(x.v)).sort((a,b)=>b.v-a.v).slice(0,n);
+    rankList.innerHTML=`<table class="table"><thead><tr><th>#</th><th>頻道</th><th>${b[3]}</th><th>標籤</th><th>補充</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><a href="#" data-loc="${r.c.id}">${escHtml(r.c.n||r.c.t||r.c.id)}</a></td><td>${valFmt(cur,r.v)}</td><td><span class="tag">${tierOf(r.c.s)||"—"}</span><span class="tag">${escHtml(r.c.nat||"—")}</span><span class="tag">${r.c.g?"團體":"個人"}</span></td><td>${cur==="event"&&r.e?`${r.e.type} ${r.e.date} <a href="${escHtml(r.e.url)}" target="_blank">影片</a>`:""}</td></tr>`).join("")}</tbody></table><div class="footer">成長/黏著/規律為比率指標，已用門檻過濾；事件 delta 為毛估、未扣自然成長。</div>`;
+    rankList.querySelectorAll("[data-loc]").forEach(a=>a.onclick=e=>{e.preventDefault();jumpLocate(a.dataset.loc);});}
+  rankChips.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{cur=ch.dataset.k;rankChips.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===ch));render();});
+  ["rankTier","rankNat","rankType","rankN"].forEach(id=>document.getElementById(id).onchange=render);render();
+}
+
+function buildAgency(){
+  const chans=DIRDATA.channels.filter(c=>c.id), byId=Object.fromEntries(chans.map(c=>[c.id,c])), groups={};
+  Object.entries(GROW.channels).forEach(([id,g])=>{const c=byId[id], gn=(g.gn||c&&c.gn||"").trim(); if(!gn)return; (groups[gn]||(groups[gn]=[])).push(Object.assign({},c,g,{id}));});
+  const med=a=>{a=a.filter(v=>v!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null;};
+  const stats=Object.entries(groups).map(([gn,m])=>{const total=m.reduce((a,x)=>a+(x.subs_now||x.s||0),0),mx=m.slice().sort((a,b)=>(b.subs_now||0)-(a.subs_now||0))[0];return{gn,members:m.length,total,median:med(m.map(x=>x.subs_now||x.s)),max:mx,head:total&&mx?((mx.subs_now||mx.s||0)/total):null,mom:med(m.map(x=>x.mom_3m)),alive:m.filter(x=>x.ac==="Active").length/m.length};});
+  agList.innerHTML=stats.filter(x=>x.members>=3).sort((a,b)=>b.members-a.members).map(x=>`<option value="${escHtml(x.gn)}">`).join("");
+  function table(){const key=agSort.value,arr=stats.slice().sort((a,b)=>(key==="members"?b.members-a.members:key==="median"?(b.median||0)-(a.median||0):b.total-a.total)).slice(0,30);
+    agTable.innerHTML=`<table class="table"><thead><tr><th>團體</th><th>成員</th><th>總訂閱</th><th>每人中位</th><th>頭部集中</th><th>存活率</th></tr></thead><tbody>${arr.map(x=>`<tr><td><a href="#" data-ag="${escHtml(x.gn)}">${escHtml(x.gn)}</a></td><td>${x.members}</td><td>${fmt(x.total)}</td><td>${fmt(x.median)}</td><td>${pctText(x.head)}</td><td>${pctText(x.alive)}</td></tr>`).join("")}</tbody></table>`;
+    agTable.querySelectorAll("[data-ag]").forEach(a=>a.onclick=e=>{e.preventDefault();agQ.value=a.dataset.ag;deep(a.dataset.ag);});}
+  function deep(gn){const st=stats.find(x=>x.gn===gn);if(!st){agStatus.textContent="找不到團體";return;}agStatus.textContent="已套用："+gn;const m=groups[gn].slice().sort((a,b)=>(b.subs_now||b.s||0)-(a.subs_now||a.s||0));
+    agKpi.innerHTML=`<div class="kpis"><div class="kpi"><div class="l">成員數</div><div class="v">${st.members}</div></div><div class="kpi"><div class="l">總訂閱</div><div class="v">${fmt(st.total)}</div></div><div class="kpi"><div class="l">每人中位</div><div class="v">${fmt(st.median)}</div></div><div class="kpi"><div class="l">頭部集中</div><div class="v">${pctText(st.head)}</div></div></div>`;
+    agDeep.innerHTML=`<table class="table"><thead><tr><th>成員</th><th>訂閱</th><th>近3月</th><th>狀態</th></tr></thead><tbody>${m.map(x=>`<tr><td><a href="#" data-loc="${x.id}">${escHtml(x.n||x.id)}</a></td><td>${fmt(x.subs_now||x.s)}</td><td>${pctText(x.mom_3m)}</td><td>${escHtml(x.ac||"")}</td></tr>`).join("")}</tbody></table><div class="footer">存活率含倖存者偏差；企業/社團三分目前無標記。</div>`;
+    agDeep.querySelectorAll("[data-loc]").forEach(a=>a.onclick=e=>{e.preventDefault();jumpLocate(a.dataset.loc);});}
+  agSort.onchange=table; agFind.onclick=()=>deep(agQ.value); table();
+  const g1=chans.filter(c=>c.g),g0=chans.filter(c=>!c.g),val=(arr,fn)=>med(arr.map(fn));
+  new Chart(agCmp,{type:"bar",data:{labels:["訂閱中位","成長中位%","Active%","黏著中位"],datasets:[{label:"團體",data:[val(g1,c=>c.s),val(g1,c=>((GROW.channels[c.id]||{}).mom_3m||0)*100),val(g1,c=>((GROW.channels[c.id]||{}).ac==="Active"?100:0)),val(g1,c=>(c.r&&c.s)?c.r/c.s*100:null)],backgroundColor:C.cum},{label:"個人",data:[val(g0,c=>c.s),val(g0,c=>((GROW.channels[c.id]||{}).mom_3m||0)*100),val(g0,c=>((GROW.channels[c.id]||{}).ac==="Active"?100:0)),val(g0,c=>(c.r&&c.s)?c.r/c.s*100:null)],backgroundColor:C.green}]},options:opts()});
+  const labels=["1","2","3-4","5-9","10-19","20+"],counts=Array(labels.length).fill(0);stats.forEach(x=>{const i=x.members<3?x.members-1:x.members<5?2:x.members<10?3:x.members<20?4:5;counts[i]++;});
+  new Chart(agSize,{type:"bar",data:{labels,datasets:[{label:"團體數",data:counts,backgroundColor:C.rate}]},options:opts()});
+}
+
+function buildReport(){
+  const years=[...new Set(ACT.filter(d=>!d.partial).map(d=>d.quarter.slice(0,4)))].filter(y=>+y>=2023); repYear.innerHTML=years.map(y=>`<option>${y}</option>`).join("")+'<option value="latest">最新狀態</option>'; repYear.value=years[years.length-1]||"latest";
+  const bz={game:"遊戲",chat:"雜談",singing:"歌回",shorts:"短影音",asmr:"ASMR",collab:"連動",announcement:"公告",other:"其他"}, maxB=o=>{const e=Object.entries(o||{}).sort((a,b)=>b[1]-a[1])[0];return e?bz[e[0]]||e[0]:"—";}, range=n=>[...Array(n).keys()];
+  function render(){const rows=ACT.filter(d=>!d.partial),y=repYear.value,cur=y==="latest"?rows[rows.length-1]:rows.filter(d=>d.quarter.startsWith(y)).slice(-1)[0],coh=COH.series.filter(d=>d.quarter.startsWith(cur.quarter.slice(0,4))),peak=COH.series.reduce((a,b)=>b.debuts>a.debuts?b:a),nat=Object.entries(COH.current.nationality).slice(0,3).map(([k,v])=>`${k} ${fmt(v)}`).join("、"),sh=cur.topvid_buckets||{},sht=Object.values(sh).reduce((a,x)=>a+x,0)||1,peakH=range(24).reduce((a,b)=>STM.yt.industry.hours[b]>STM.yt.industry.hours[a]?b:a,0);
+    const txt=[["產業規模",`追蹤頻道 <b>${fmt(cur.tracked_channels)}</b>，近期活躍 <b>${fmt(cur.recently_active_any)}</b>（活躍率 ${cur.activation_rate}%）。YouTube 訂閱中位數 ${fmt(cur.yt_subs_median)}，Twitch 近期活躍 ${fmt(cur.recently_active_twitch)}。`],["進出場動態",`出道高峰在 ${peak.quarter}，單季 ${peak.debuts} 人；${cur.quarter.slice(0,4)} 年出道 ${fmt(coh.reduce((a,x)=>a+x.debuts,0))}、畢業 ${fmt(coh.reduce((a,x)=>a+x.graduations,0))}。`],["內容趨勢",`熱門影片以 <b>${maxB(cur.topvid_buckets)}</b> 為主，短影音佔 ${((sh.shorts||0)/sht*100).toFixed(1)}%；直播內容主幹為 ${maxB(cur.yt_live_buckets)}。`],["平台版圖",`近期活躍中 YouTube ${fmt(cur.recently_active_yt)}、Twitch ${fmt(cur.recently_active_twitch)}；雙棲主場需等待 crossplatform 工單。`],["集中度",`前 10 大佔全體訂閱 ${(cur.yt_top10_share*100).toFixed(1)}%，訂閱中位數 ${fmt(cur.yt_subs_median)}，長尾持續變厚。`],["世代組成",`國籍前三為 ${nat}；團體 : 個人 = ${fmt(COH.current.group_split.group)} : ${fmt(COH.current.group_split.indie)}。`],["生命週期",`典型台 V 出道 12 個月生命週期中位為 ${GROW.lifecycle.median[12]} 倍初始訂閱，前段 p75 為 ${GROW.lifecycle.p75[12]} 倍。`],["開台生態",`YouTube 開台尖峰落在台灣時間 ${peakH} 時；作息資料已補完 7/7，但這是開台時間，不是觀看尖峰。`]];
+    reportBody.innerHTML=txt.map(([h,p])=>`<div class="faq-card"><h4>${h}</h4><div class="faq-line">${p}</div></div>`).join(""); reportBody.dataset.text=txt.map(([h,p])=>h+"\\n"+p.replace(/<[^>]+>/g,"")).join("\\n\\n");}
+  repYear.onchange=render; repCopy.onclick=async()=>{await navigator.clipboard.writeText(reportBody.dataset.text||"");repStatus.textContent="已複製";}; render();
+}
+
 function buildGrowth(inclP){
   const esc=s=>(s==null?"":String(s)).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const pct=v=>v==null||!isFinite(v)?"—":(v*100).toFixed(1)+"%";
   const nowMonth=new Date().toISOString().slice(0,7), months=GROW.months.filter(m=>m<=nowMonth), wd=["一","二","三","四","五","六","日"];
   const pctArr=a=>{const t=a.reduce((x,y)=>x+y,0)||1;return a.map(v=>+(v/t*100).toFixed(1));};
-  const clearCharts=()=>["gwTraj","gwLife","gwSurv","gwEvt","gwHour","gwWeek","gwMonth"].forEach(k=>{if(store[k]){store[k].destroy();store[k]=null;}});
+  const clearCharts=()=>["gwTraj","gwLife","gwSurv","gwEvt","gwX1","gwX2","gwX3","gwHour","gwWeek","gwMonth"].forEach(k=>{if(store[k]){store[k].destroy();store[k]=null;}});
   const medSeries=rows=>months.map((m,i)=>{const vals=rows.map(c=>c.series&&c.series[i]).filter(v=>v!=null); if(!vals.length)return null; vals.sort((a,b)=>a-b); return vals[Math.floor(vals.length/2)];});
   const selected=()=>gwChannel&&gwChannel.id?GROW.channels[gwChannel.id]:null;
   function panel(el,html){document.getElementById(el).innerHTML=html;}
@@ -587,11 +686,12 @@ function buildGrowth(inclP){
     }
     const all=Object.values(GROW.channels).filter(x=>x.series);
     const cohort=all.filter(x=>String(x.d||"").slice(0,4)===String(c.d||"").slice(0,4));
-    panel("gw_traj",kpiRow([["目前訂閱",fmt(c.subs_now),c.peak_m?"高點 "+c.peak_m:""],["年化成長",pct(c.cagr_yr)],["近 3 月動能",pct(c.mom_3m)],["距高點回落",pct(c.drawdown)]])+`<div class="card full"><h3>月度訂閱軌跡</h3><p class="desc">選定頻道 vs 同屆中位線 vs 全體中位線</p><div class="box tall"><canvas id="gwTraj"></canvas></div></div>`);
+    panel("gw_traj",kpiRow([["YT 目前訂閱",fmt(c.subs_now),c.peak_m?"高點 "+c.peak_m:""],["YT 年化成長",pct(c.cagr_yr)],["YT 近 3 月動能",pct(c.mom_3m)],["YT 距高點回落",pct(c.drawdown)],["Twitch 目前追隨",fmt(c.tw_now)],["Twitch 年化成長",pct(c.tw_cagr_yr)],["Twitch 近 3 月動能",pct(c.tw_mom_3m)],["Twitch 距高點回落",pct(c.tw_drawdown)]])+`<div class="note">YouTube 訂閱與 Twitch 追隨語意不同，左右軸只看各自趨勢，不可直接比較絕對高低。</div><div class="card full"><h3>月度訂閱 / 追隨軌跡</h3><p class="desc">YT 訂閱（左軸）+ Twitch 追隨（右軸）+ YT 同屆/全體中位線</p><div class="box tall"><canvas id="gwTraj"></canvas></div></div>`);
     store.gwTraj=new Chart(gwTraj,{type:"line",data:{labels:months,datasets:[
-      {label:c.n||gwChannel.n,data:c.series.slice(0,months.length),borderColor:C.green,tension:.2},
+      {label:"YT 訂閱",data:c.series.slice(0,months.length),borderColor:C.green,tension:.2,yAxisID:"y"},
+      {label:"Twitch 追隨",data:c.series_tw?c.series_tw.slice(0,months.length):[],borderColor:C.tw,tension:.2,yAxisID:"y1"},
       {label:"同屆中位",data:medSeries(cohort),borderColor:C.rate,borderDash:[5,4],tension:.2},
-      {label:"全體中位",data:medSeries(all),borderColor:C.blue,borderDash:[2,3],tension:.2}]},options:opts()});
+      {label:"全體中位",data:medSeries(all),borderColor:C.blue,borderDash:[2,3],tension:.2}]},options:opts({y1:{position:"right",ticks:{color:TICK},grid:{drawOnChartArea:false}}})});
   }
   function survival(groupFn){
     const last=months[months.length-1]+"-01", lastD=new Date(last), rows=[];
@@ -614,6 +714,24 @@ function buildGrowth(inclP){
     const labels=Object.keys(EVT.by_type), vals=labels.map(k=>EVT.by_type[k].median_delta||0);
     store.gwEvt=new Chart(gwEvt,{type:"bar",data:{labels,datasets:[{label:"中位淨增",data:vals,backgroundColor:C.rate}]},options:opts()});
   }
+  function renderCross(){
+    clearCharts(); const x=gwChannel&&gwChannel.id?XPLAT.channels[gwChannel.id]:null, ind=XPLAT.industry, ms=ind.months.filter(m=>m<=nowMonth);
+    const idx=ms.map(m=>ind.months.indexOf(m));
+    if(x){
+      panel("gw_cross",`<div class="note">Twitch 追隨與 YouTube 訂閱語意不同，跨平台只比較平台內百分位與各自成長率。</div>${kpiRow([["主場",x.home],["YT 平台內百分位",x.yt_pct+"%"],["Twitch 平台內百分位",x.tw_pct+"%"],["近期傾斜",x.tilt],["YT 近3月",pct(x.yt_mom)],["Twitch 近3月",pct(x.tw_mom)]])}`);
+      return;
+    }
+    panel("gw_cross",`<div class="note">未選頻道時顯示產業平台版圖。Twitch 線從 2023-07 起；總量圖僅看趨勢，不比較訂閱/追隨絕對高低。</div><div class="grid"><div class="card"><h3>平台存在型態</h3><div class="box"><canvas id="gwX1"></canvas></div></div><div class="card"><h3>平台總量趨勢</h3><div class="box"><canvas id="gwX2"></canvas></div></div><div class="card full"><h3>出道屆平台選擇</h3><div class="box"><canvas id="gwX3"></canvas></div></div></div>`);
+    store.gwX1=new Chart(gwX1,{type:"line",data:{labels:ms,datasets:[
+      {label:"YT only",data:idx.map(i=>ind.active_yt_only[i]),borderColor:C.blue,tension:.2},
+      {label:"TW only",data:idx.map(i=>ind.active_tw_only[i]),borderColor:C.tw,tension:.2},
+      {label:"雙棲",data:idx.map(i=>ind.active_dual[i]),borderColor:C.green,tension:.2}]},options:opts()});
+    store.gwX2=new Chart(gwX2,{type:"line",data:{labels:ms,datasets:[
+      {label:"YT 訂閱總量",data:idx.map(i=>ind.yt_subs_total[i]),borderColor:C.green,tension:.2,yAxisID:"y"},
+      {label:"Twitch 追隨總量",data:idx.map(i=>ind.tw_fol_total[i]),borderColor:C.tw,tension:.2,yAxisID:"y1"}]},options:opts({y1:{position:"right",ticks:{color:TICK},grid:{drawOnChartArea:false}}})});
+    const years=Object.keys(ind.debut_cohort_platform).filter(y=>+y>=2022).sort();
+    store.gwX3=new Chart(gwX3,{type:"bar",data:{labels:years,datasets:[{label:"YT only",data:years.map(y=>ind.debut_cohort_platform[y].yt_only),backgroundColor:C.blue},{label:"Twitch present",data:years.map(y=>ind.debut_cohort_platform[y].tw_present),backgroundColor:C.tw}]},options:opts({},true)});
+  }
   function renderSched(){
     clearCharts(); const yt=STM.yt||{}, tw=STM.tw||{}, ytc=gwChannel&&gwChannel.id?yt.channels[gwChannel.id]:null, twc=gwChannel&&gwChannel.id?tw.channels[gwChannel.id]:null;
     const zh={mon:"週一",tue:"週二",wed:"週三",thu:"週四",fri:"週五",sat:"週六",sun:"週日"};
@@ -635,7 +753,7 @@ function buildGrowth(inclP){
       {label:"YT 產業開台樣本",data:smonths.map(m=>yt.industry.by_month[m]||0),borderColor:C.blue,tension:.2,segment:{borderDash:c=>c.p1DataIndex===smonths.length-1?[5,4]:undefined}},
       {label:"Twitch 產業開台樣本",data:smonths.map(m=>tw.industry.by_month[m]||0),borderColor:C.tw,tension:.2,segment:{borderDash:c=>c.p1DataIndex===smonths.length-1?[5,4]:undefined}}]},options:opts()});
   }
-  const subs=[["gw_traj","成長軌跡",renderTraj],["gw_life","生命週期&存活",renderLife],["gw_event","事件吸粉",renderEvent],["gw_sched","開台作息",renderSched]];
+  const subs=[["gw_traj","成長軌跡",renderTraj],["gw_life","生命週期&存活",renderLife],["gw_event","事件吸粉",renderEvent],["gw_cross","雙棲比較",renderCross],["gw_sched","開台作息",renderSched]];
   const sub=document.getElementById("gwSub"); sub.innerHTML=subs.map((s,i)=>`<div class="tab ${i?'':'on'}" data-id="${s[0]}">${s[1]}</div>`).join("");
   function show(id){subs.forEach(s=>document.getElementById(s[0]).style.display=s[0]===id?"block":"none"); sub.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.id===id)); subs.find(s=>s[0]===id)[2]();}
   sub.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.id));
@@ -657,8 +775,10 @@ function locate(o){ // o={s,v,f,r,rh,nat,d,label}
   if(o.f!=null){const r=rankIn(A.f,o.f);rows.push({l:"Twitch 追隨",v:fmt(o.f),d:r?"贏過 "+r.pct+"%・第 "+r.rank+"/"+r.n:""});}
   if(o.r!=null){const r=rankIn(A.r,o.r);rows.push({l:"近期中位觀看(熱度)",v:fmt(o.r),d:r?"贏過 "+r.pct+"%":""});}
   if(o.g!=null&&o.s!=null){const tArr=DIRDATA.channels.filter(c=>c.g===o.g&&c.s!=null).map(c=>c.s).sort((a,b)=>a-b);const rt=rankIn(tArr,o.s);if(rt)rows.push({l:(o.g?"團體勢":"個人勢")+"中排名",v:"第 "+rt.rank+"/"+rt.n,d:"贏過同類型 "+rt.pct+"%"});}
-  const eff=(o.v&&o.s)?o.v/o.s:null;
-  if(eff!=null){const r=rankIn(A.eff,eff);rows.push({l:"黏著度 觀看/訂閱",v:eff.toFixed(0),d:r?"贏過 "+r.pct+"%":""});}
+  const reff=(o.r!=null&&o.s)?o.r/o.s:null;
+  if(reff!=null){const r=rankIn(A.reff,reff);rows.push({l:"黏著度 近期觀看/訂閱",v:reff.toFixed(3),d:r?"贏過 "+r.pct+"%":""});}
+  const eff=(o.v!=null&&o.s)?o.v/o.s:null;
+  if(eff!=null){const r=rankIn(A.eff,eff);rows.push({l:"曝光效率 總觀看/訂閱",v:eff.toFixed(0),d:r?"贏過 "+r.pct+"%":""});}
   if(g){
     rows.push({l:"成長動能",v:(g.mom_3m>=0?"+":"")+pctText(g.mom_3m),d:"動能贏過 "+(pctile(LON.mom,g.mom_3m)??"—")+"%"});
     rows.push({l:"年化成長",v:pctText(g.cagr_yr),d:"贏過 "+(pctile(LON.cagr,g.cagr_yr)??"—")+"%"});
@@ -698,8 +818,8 @@ function drawLocCharts(o){
   new Chart(lc2,{type:"bar",data:{labels:tiers.map(t=>t[0]),datasets:[{label:"頻道數",data:counts,backgroundColor:tiers.map(t=>t[0]===yt?"#37d99a":t[3])}]},
     options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK},grid:{color:GRID}}}}});
   // lc3 radar
-  const eff=(o.v&&o.s)?o.v/o.s:null;
-  const g=locLong(o), st=locStream(o), reff=(o.r&&o.s)?o.r/o.s:null;
+  const eff=(o.v!=null&&o.s)?o.v/o.s:null;
+  const g=locLong(o), st=locStream(o), reff=(o.r!=null&&o.s)?o.r/o.s:null;
   const rad=[pctile(A.s,o.s),pctile(A.v,o.v),pctile(A.f,o.f),pctile(A.r,o.r),pctile(A.rh,o.rh),pctile(A.reff,reff),g?pctile(LON.mom,g.mom_3m):null,st?pctile(LON.reg,regularity(st)):null].map(x=>x==null?0:x);
   new Chart(lc3,{type:"radar",data:{labels:["訂閱","總觀看","Twitch","近期熱度","爆紅力","黏著度","成長動能","開台規律"],
     datasets:[{label:"你的百分位",data:rad,borderColor:"#37d99a",backgroundColor:"#37d99a33",pointBackgroundColor:"#37d99a"}]},
@@ -773,7 +893,7 @@ function buildLocate(){
   drawLocCharts({});
 }
 
-const TABS=[["s_locate","定位你自己",buildLocate],["s_overview","活躍總覽",buildOverview],["s_cohort","進出場動態",buildCohort],
+const TABS=[["s_locate","定位你自己",buildLocate],["s_rank","排行榜",buildRank],["s_agency","廠牌生態",buildAgency],["s_report","產業報告",buildReport],["s_overview","活躍總覽",buildOverview],["s_cohort","進出場動態",buildCohort],
   ["s_conc","集中度與規模",buildConc],["s_pyr","訂閱級距金字塔",buildPyr],["s_content","內容與組成",buildContent],
   ["s_faq","常見問題",buildFaq],["s_growth","成長與生命週期",buildGrowth]];
 let curTab="s_overview";
@@ -795,7 +915,7 @@ showTab("s_locate");
 </script>
 </body></html>"""
 
-HTML = HTML.replace("__ACT__",ACT_JSON).replace("__COH__",COH_JSON).replace("__DIR__",DIR_JSON).replace("__GROW__",GROW_JSON).replace("__EVT__",EVT_JSON).replace("__STM__",STM_JSON).replace("__GEN__",GEN)
+HTML = HTML.replace("__ACT__",ACT_JSON).replace("__COH__",COH_JSON).replace("__DIR__",DIR_JSON).replace("__GROW__",GROW_JSON).replace("__EVT__",EVT_JSON).replace("__STM__",STM_JSON).replace("__XPLAT__",XPLAT_JSON).replace("__GEN__",GEN)
 out = ACT/"vtuber_activity_dashboard.html"
 out.write_text(HTML, encoding="utf-8")
 print("wrote", out, len(HTML),"bytes")

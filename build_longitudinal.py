@@ -201,8 +201,12 @@ def parse_snapshot_time(s):
 def build_panel(rebuild=False):
     p = CACHE / "panel_daily.json"
     if p.exists() and not rebuild:
-        return json.loads(p.read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8"))
+        if "tw_panel" in data:
+            return data
+        print("panel cache missing tw_panel; rebuilding")
     panel = defaultdict(dict)
+    tw_panel = defaultdict(dict)
     views = defaultdict(dict)
     rows = daily_latest(["basic-data"])
     for i, (f, data) in enumerate(iter_contents(rows), 1):
@@ -211,13 +215,15 @@ def build_panel(rebuild=False):
             if not vid:
                 continue
             subs = ii(r.get("YouTube Subscriber Count"))
+            fol = ii(r.get("Twitch Follower Count"))
             view = ii(r.get("YouTube View Count"))
             panel[vid][f["date"]] = subs if subs and subs > 0 else None
+            tw_panel[vid][f["date"]] = fol if fol and fol > 0 else None
             if view and view > 0:
                 views[vid][f["date"]] = view
         if i % 100 == 0:
             print("panel files", i, "/", len(rows))
-    data = {"dates": sorted({d for s in panel.values() for d in s}), "panel": panel, "views": views}
+    data = {"dates": sorted({d for s in panel.values() for d in s}), "panel": panel, "tw_panel": tw_panel, "views": views}
     p.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return data
 
@@ -349,6 +355,7 @@ def growth_json(panel_data, meta):
     months = sorted({d[:7] for d in panel_data["dates"]})
     channels = {}
     monthly_by_vid = {}
+    tw_monthly_by_vid = {}
     for vid, days in panel_data["panel"].items():
         by_m = {}
         for d in sorted(days):
@@ -374,6 +381,29 @@ def growth_json(panel_data, meta):
             "drawdown": round((peak - last) / peak, 4) if peak else None})
         if len(vals) >= 6:
             item["series"] = [by_m.get(m) for m in months]
+        tw_days = (panel_data.get("tw_panel") or {}).get(vid, {})
+        tw_by_m = {}
+        for d in sorted(tw_days):
+            tw_by_m[d[:7]] = tw_days[d]
+        tw_monthly_by_vid[vid] = tw_by_m
+        tw_vals = [v for v in tw_by_m.values() if v is not None]
+        if tw_vals:
+            tw_first_m = next((m for m in months if tw_by_m.get(m)), None)
+            tw_last_m = next((m for m in reversed(months) if tw_by_m.get(m)), None)
+            tw_first = tw_by_m.get(tw_first_m)
+            tw_last = tw_by_m.get(tw_last_m)
+            tw_peak_m, tw_peak = max(((m, v) for m, v in tw_by_m.items() if v is not None), key=lambda x: x[1])
+            tw_span = months.index(tw_last_m) - months.index(tw_first_m) if tw_first_m and tw_last_m else 0
+            tw_cagr = ((tw_last / tw_first) ** (12 / tw_span) - 1) if tw_first and tw_last and tw_span > 0 else None
+            tw_m3 = months[max(0, months.index(tw_last_m) - 3)] if tw_last_m else None
+            tw_base3 = tw_by_m.get(tw_m3) if tw_m3 else None
+            tw_mom3 = (tw_last / tw_base3 - 1) if tw_last and tw_base3 else None
+            item.update({"tw_now": tw_last, "tw_peak": tw_peak,
+                "tw_cagr_yr": None if tw_cagr is None else round(tw_cagr, 4),
+                "tw_mom_3m": None if tw_mom3 is None else round(tw_mom3, 4),
+                "tw_drawdown": round((tw_peak - tw_last) / tw_peak, 4) if tw_peak else None})
+            if len(tw_vals) >= 6:
+                item["series_tw"] = [tw_by_m.get(m) for m in months]
         channels[vid] = item
 
     life = defaultdict(list)
@@ -403,6 +433,71 @@ def growth_json(panel_data, meta):
     }
     return {"generated_at": datetime.now().isoformat(timespec="seconds"), "resolution": "monthly",
         "months": months, "channels": channels, "lifecycle": lifecycle}
+
+
+def pctile_py(vals, v):
+    vals = sorted(x for x in vals if x is not None and math.isfinite(x))
+    if v is None or not vals:
+        return None
+    n = sum(1 for x in vals if x <= v)
+    return round(n / len(vals) * 100, 1)
+
+
+def crossplatform_json(growth):
+    months = growth["months"]
+    channels = growth["channels"]
+    yt_vals = [c.get("subs_now") for c in channels.values() if c.get("subs_now")]
+    tw_vals = [c.get("tw_now") for c in channels.values() if c.get("tw_now")]
+    out = {}
+    for vid, c in channels.items():
+        if not c.get("subs_now") or not c.get("tw_now"):
+            continue
+        yp = pctile_py(yt_vals, c.get("subs_now"))
+        tp = pctile_py(tw_vals, c.get("tw_now"))
+        diff = (yp or 0) - (tp or 0)
+        home = "均衡" if abs(diff) < 10 else ("YT" if diff > 0 else "TW")
+        ym, tm = c.get("mom_3m"), c.get("tw_mom_3m")
+        if ym is None or tm is None or abs(ym - tm) < 0.03:
+            tilt = "持平"
+        else:
+            tilt = "往YT傾斜" if ym > tm else "往Twitch傾斜"
+        out[vid] = {"n": c.get("n"), "nat": c.get("nat"), "d": c.get("d"),
+            "yt_subs": c.get("subs_now"), "tw_fol": c.get("tw_now"),
+            "yt_pct": yp, "tw_pct": tp, "home": home,
+            "yt_mom": ym, "tw_mom": tm, "tilt": tilt}
+    active_yt_only, active_tw_only, active_dual, yt_total, tw_total = [], [], [], [], []
+    for i, m in enumerate(months):
+        yo = to = dual = yt_sum = tw_sum = 0
+        for c in channels.values():
+            yv = c.get("series", [None] * len(months))[i] if c.get("series") else None
+            tv = c.get("series_tw", [None] * len(months))[i] if c.get("series_tw") else None
+            if yv:
+                yt_sum += yv
+            if tv:
+                tw_sum += tv
+            if yv and tv:
+                dual += 1
+            elif yv:
+                yo += 1
+            elif tv:
+                to += 1
+        active_yt_only.append(yo); active_tw_only.append(to); active_dual.append(dual)
+        yt_total.append(yt_sum); tw_total.append(tw_sum)
+    cohort = {}
+    for c in channels.values():
+        y = (c.get("d") or "")[:4]
+        if not y:
+            continue
+        cohort.setdefault(y, {"yt_only": 0, "tw_present": 0})
+        if c.get("tw_now"):
+            cohort[y]["tw_present"] += 1
+        else:
+            cohort[y]["yt_only"] += 1
+    return {"generated_at": datetime.now().isoformat(timespec="seconds"), "channels": out,
+        "industry": {"months": months, "active_yt_only": active_yt_only,
+            "active_tw_only": active_tw_only, "active_dual": active_dual,
+            "yt_subs_total": yt_total, "tw_fol_total": tw_total,
+            "debut_cohort_platform": cohort}}
 
 
 def event_type(title):
@@ -531,10 +626,12 @@ def main():
     weekdays = parse_weekdays(args.streams_weekdays) or ["sun", "thu"]
     yt_streams = build_streams_raw("livestreams", "streams_raw.json", weekdays, args.rebuild)
     tw_streams = build_streams_raw("twitch-livestreams", "twitch_streams_raw.json", weekdays, args.rebuild)
+    growth = growth_json(panel, meta)
     outputs = {
-        "growth.json": growth_json(panel, meta),
+        "growth.json": growth,
         "events.json": events_json(events, panel),
         "streaming.json": streaming_json(yt_streams, tw_streams),
+        "crossplatform.json": crossplatform_json(growth),
     }
     for name, data in outputs.items():
         p = OUT / name

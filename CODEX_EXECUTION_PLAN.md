@@ -1,7 +1,7 @@
 # Codex 執行清單（縱貫分析後續）
 
 狀態：✅ 完成　⬜ 未開始。共用 `build_longitudinal.py` / `build_locate_directory.py` / `build_full_dashboard.py`，**改動請合併、勿互相覆蓋**。
-最後更新：2026-06-06（S2 完成驗證）
+最後更新：2026-06-07（S4、Twitch 雙棲、探索分頁完成）
 
 ---
 
@@ -11,42 +11,30 @@
 - **連結對比**（`UI_LINK_CONTRAST_FIX.md`）：全域連結改亮藍含 `:visited`。
 - **作息抽取 S1→S2**：已跑到 `sun,thu,tue,sat`。
   - 驗證 OK：YT 清洗後 206,896 場（過濾待機室 68,702＝raw 24%）、hour8 假峰 8049→97、尖峰 20 時、月份 2022-06→2026-06；未取樣日（一/三/五）已從上萬塌到數百＝外溢消失。TW 1,790 場、尖峰 21 時，同樣乾淨。
+- **作息補完 S3→S4**（`LONGITUDINAL_STREAMS_STAGED_TASK_FOR_CODEX.md`）：已跑 `--streams-weekdays all`，完成 7/7 日級覆蓋。
+  - 驗證 OK：YT 1,460 snapshots，清洗後 362,009 場；TW 1,072 snapshots，清洗後 1,851 場；`streaming.json` 已含 `yt/tw` 與完整 coverage。
+- **定位升級 + 同類型排名**（`LOCATE_TYPE_TASK_FOR_CODEX.md` + `LOCATE_UPGRADE_TASK_FOR_CODEX.md`）：已合併定位函式。
+  - 思路B 可選團體/個人；KPI 與分組百分位新增同類型；體檢卡含健康總分、8 軸雷達、成長/生命週期/里程碑、相似頻道、作息/事件一句話。
+  - 已修黏著度 `r=0` 判斷：0 近期觀看視為有效資料，黏著度百分位採嚴格「贏過」口徑，0 會顯示 0.0%。
+- **Twitch 縱貫 + 雙棲比較**（`LONGITUDINAL_TWITCH_TASK_FOR_CODEX.md`）：已完成。
+  - `growth.json` 新增 `series_tw/tw_now/tw_cagr_yr/tw_mom_3m/tw_peak/tw_drawdown`；新增 `crossplatform.json`；`s_growth` 新增「雙棲比較」，軌跡圖改 YT/Twitch 雙軸並標註不可直接比絕對量。
+- **探索與報告分頁**（`RANK_TASK_FOR_CODEX.md` + `AGENCY_TASK_FOR_CODEX.md` + `REPORT_TASK_FOR_CODEX.md`）：已完成可用版。
+  - 新增 `s_rank` 排行榜、`s_agency` 廠牌生態、`s_report` 產業報告；榜單/表格可點回定位。
 
 ---
 
 ## ⬜ 待辦
 
-### ① 作息補完 S3→S4（換參數即可，使用者逐段觸發）
-同 `LONGITUDINAL_STREAMS_STAGED_TASK_FOR_CODEX.md`，每段重生 `streaming.json`：
-- S3：`--streams-weekdays sun,thu,tue,sat,mon,fri`
-- S4：`--streams-weekdays all`（完整日級）
-- 預期：週一/三/五會用「真實當日開台」自然長出合理柱子（數千級，非現在的數百）。
-
-### ② 定位你自己・團體勢/個人勢排名（小改，可獨立進行）
-工單：`LOCATE_TYPE_TASK_FOR_CODEX.md`
-- 只改 `build_full_dashboard.py` 定位函式；DIR 的 `g` 現成。
-- KPI 加「團體勢/個人勢中排名」；lc4 加「同類型」百分位；思路B 加團體/個人下拉。
-- 企業/社團三分不做（資料無標記），留未來選配。
-
-### ②b 定位升級・頻道體檢卡（與 ② 改同批函式，合併勿覆蓋）
-工單：`LOCATE_UPGRADE_TASK_FOR_CODEX.md`
-- 串 growth/events/streaming（靠 `id`）：成長動能/生命週期定位/回落/里程碑預測、健康總分(0–100)+雷達擴 8 軸、相似頻道推薦、作息/事件一句話。
-- 缺縱貫資料的頻道顯示「資料不足」；思路B 數字模式只顯示橫斷面。
-
-### ③ Twitch 縱貫・剩餘（追隨成長 + 雙棲比較）
-工單：`LONGITUDINAL_TWITCH_TASK_FOR_CODEX.md`
-- Pass A 多存 Twitch 追隨（零額外抓取）；`growth.json` 加 `series_tw` + tw 摘要。
-- 新檔 `crossplatform.json`（雙棲 1,525 頻道：主場/百分位/傾斜 + 產業平台版圖）。
-- 軌跡圖加 Twitch 雙軸；新增「雙棲比較」子分頁。
-- ⚠ Twitch **作息已在 S1–S2 接走**，本項勿重做；跨平台一律用百分位/成長率，不比 follower vs subscriber 絕對量。
-
-### ④ 新分頁・探索與報告（資料現成、全內嵌，可獨立排程）
-- **排行榜 `s_rank`**（`RANK_TASK_FOR_CODEX.md`）：訂閱/成長/黏著/爆紅/吸粉事件/出道黑馬/規律…多榜 + 篩選，點名稱跳定位。熱門影片榜待 FAQ 的 `tv`、雙棲榜待 Twitch 的 crossplatform。
-- **廠牌生態 `s_agency`**（`AGENCY_TASK_FOR_CODEX.md`）：勢力排名(總訂閱+每人中位)、團體 vs 個人差異、單一團體梯隊/走勢。client-side 聚合 growth。
-- **產業報告 `s_report`**（`REPORT_TASK_FOR_CODEX.md`）：8 節自動敘事 + 複製全文，用 ACT/COH/growth/streaming。
-
-### ⑤（選配）頭像/縮圖整合
+### ①（選配）頭像/縮圖整合
 資料已含頭像（YT 2,903 + Twitch 1,658）與影片縮圖（100%）。`build_locate_directory.py` 順手把頭像 URL 存進 DIR（加 `img`），前端在定位/排名/事件卡渲染，配 `loading="lazy"` + 壞圖 fallback。未開工單，需要再寫。
+
+### ② 圖形與直播講解 polish
+- 排行榜目前是表格可用版，可再升級橫條榜、雙棲象限、廠牌梯隊圖、報告頁大數字章節卡。
+- 報告頁目前是樣板敘事可複製版，可再做直播展示版。
+
+### ③ 資料口徑待確認
+- `crossplatform.json` 目前雙棲定義為「YT 有訂閱且 Twitch 有追隨」，本次資料為 1,945 個，與舊工單預估 1,525 不同；需確認是否要改成更嚴格口徑。
+- `s_rank` 的熱門影片榜目前依 `DIR.tv`，若定位資料沒有重生 FAQ v2 欄位會顯示待資料；目前已可用但仍需抽查前端是否符合展示需求。
 
 ---
 
