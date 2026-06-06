@@ -31,7 +31,8 @@
 - **廠牌梯隊圖**：已完成。
   - `s_agency` 新增 scatter：X=總訂閱、Y=每人訂閱中位、點大小=成員數，可區分大廠、強小隊與長尾團體。
 - **直播簡報初稿**：已完成第一版。
-  - 新增 `build_presentation_deck.mjs`，從既有 dashboard JSON 產出 9 張 PPTX 初稿。
+  - 新增 `build_presentation_deck.mjs`，從既有 dashboard JSON 產出 10 張 PPTX 初稿。
+  - 第二版新增資料口徑/安全邊界頁，並將廠牌可繪製數改為資料即時計算。
   - 輸出：`outputs/activity/taiwan-vtuber-live-briefing.pptx`（ignored，不提交）。
 
 ---
@@ -40,7 +41,7 @@
 
 ### ① 圖形與直播講解 polish
 - 排行榜橫條榜、雙棲象限、報告頁大數字卡、廠牌梯隊圖已完成。
-- 已有可開啟的簡報初稿；後續若要再放大直播效果，可做正式視覺設計/截圖型圖表強化。
+- 已有可開啟的 10 頁簡報初稿；後續若要再放大直播效果，可做正式視覺設計/截圖型圖表強化。
 
 ### ② 資料口徑待確認
 - `crossplatform.json` 目前雙棲定義為「YT 有訂閱且 Twitch 有追隨」，本次資料為 1,945 個，與舊工單預估 1,525 不同；需確認是否要改成更嚴格口徑。

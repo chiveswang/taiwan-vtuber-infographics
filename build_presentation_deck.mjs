@@ -78,7 +78,8 @@ const agencyStats = Object.entries(groups)
   }))
   .filter((x) => x.members >= 2 && x.total > 0)
   .sort((a, b) => b.total - a.total)
-  .slice(0, 8);
+const agencyTierCount = agencyStats.length;
+const topAgencyStats = agencyStats.slice(0, 8);
 const ytPeakHour = streams.yt.industry.hours.reduce((best, v, i, arr) => (v > arr[best] ? i : best), 0);
 const twPeakHour = streams.tw.industry.hours.reduce((best, v, i, arr) => (v > arr[best] ? i : best), 0);
 const cohortCurrent = cohort.cohort?.current || cohort.current || {};
@@ -123,6 +124,15 @@ function baseSlide(p, eyebrow, title) {
     w: 380,
     h: 24,
     size: 12,
+    color: C.muted,
+    align: "right",
+  });
+  addText(slide, String(p.slides.count).padStart(2, "0"), {
+    x: 1168,
+    y: 34,
+    w: 46,
+    h: 24,
+    size: 14,
     color: C.muted,
     align: "right",
   });
@@ -214,8 +224,8 @@ const p = Presentation.create();
 
 {
   const s = baseSlide(p, "04｜廠牌梯隊", "看總訂閱也要看每人中位，否則會誤讀團體規模");
-  metric(s, "可繪製團體", "235", "378 個 group name 中符合條件者", 70, 170, 260, C.green);
-  bars(s, agencyStats, { x: 80, y: 310, w: 1000, h: 38, valueKey: "total", labelKey: "gn", color: C.purple });
+  metric(s, "可繪製團體", fmt(agencyTierCount), `${fmt(Object.keys(groups).length)} 個 group name 中符合條件者`, 70, 170, 260, C.green);
+  bars(s, topAgencyStats, { x: 80, y: 310, w: 1000, h: 38, valueKey: "total", labelKey: "gn", color: C.purple });
   bullets(s, ["右上角是總量與單人成績都強的梯隊。", "成員多不必然等於平均強，直播時可接 dashboard 的廠牌梯隊圖。"], 700, 172, 470, 20);
 }
 
@@ -258,6 +268,26 @@ const p = Presentation.create();
     170,
     1050,
     25,
+  );
+}
+
+{
+  const s = baseSlide(p, "09｜資料口徑", "這份簡報能支撐什麼，不能支撐什麼");
+  metric(s, "資料來源", "本機索引", "SQLite / generated JSON", 70, 170, 250, C.green);
+  metric(s, "大型資料", "不提交", "archive/current/outputs ignored", 350, 170, 250, C.amber);
+  metric(s, "雙棲口徑", fmt(dual.length), "YT有訂閱且Twitch有追隨", 630, 170, 250, C.purple);
+  metric(s, "缺口", "無同接", "也無SC金流/留言互動率", 910, 170, 250, C.red);
+  bullets(
+    s,
+    [
+      "直播可以把 dashboard 當互動主畫面，PPT 當段落骨架。",
+      "所有 proxy 要明講：黏著度是近期 VOD 觀看/訂閱，作息是開台時間。",
+      "若要正式公開發布，先確認雙棲是否改成更嚴格口徑，再重生圖表與簡報。",
+    ],
+    90,
+    360,
+    1040,
+    23,
   );
 }
 
