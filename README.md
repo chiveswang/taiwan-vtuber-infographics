@@ -41,3 +41,38 @@ Get-Content -Raw query_examples.sql | sqlite3 -header -column vtuber_index.sqlit
 ```powershell
 sqlite3 -header -column vtuber_index.sqlite "SELECT t.display_name, b.youtube_subscriber_count, b.youtube_view_count, b.twitch_follower_count FROM v_track_list t JOIN v_latest_basic_data b ON b.repo=t.repo AND b.vtuber_id=t.id WHERE t.repo='current' ORDER BY COALESCE(b.youtube_subscriber_count,0) DESC LIMIT 20;"
 ```
+
+## Archive 季度抽樣分析
+
+Archive 資料量很大，歷史分析先用定向抽樣，不全量匯入。每個 CSV kind 從自己的最早月份開始，每三個月取該月份第一份 snapshot：
+
+```powershell
+python analyze_quarterly_samples.py
+```
+
+輸出到本機忽略目錄 `quarterly_samples/`：
+
+- `manifest.csv`: 抽樣清單與每份 CSV 的 row count。
+- `summary.json`: 可後續用程式讀取的摘要。
+- `analysis.md`: 人可讀的季度趨勢摘要。
+- `csv/`: 實際抽出的季度 CSV。
+
+若只要抽特定 kind，可重複使用 `--kind`：
+
+```powershell
+python analyze_quarterly_samples.py --kind record --kind basic-data
+```
+
+抽樣完成後，可跑欄位對齊後的季度指標分析：
+
+```powershell
+python analyze_sample_metrics.py
+```
+
+輸出到 `quarterly_samples/metrics/`：
+
+- `basic-data.csv`: 頻道規模、訂閱數、觀看數、Twitch followers、頭部集中度。
+- `record.csv`: 對齊早期/後期 `YouTube Recent ...` 欄位後的近期熱度指標。
+- `top-videos.csv`: 熱門影片觀看數與標題類型桶。
+- `livestreams.csv` / `twitch-livestreams.csv`: 直播活動量與標題類型桶。
+- `metrics.md` / `metrics.json`: 人讀與程式讀摘要。

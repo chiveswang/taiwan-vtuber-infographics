@@ -5,3 +5,7 @@ current/
 *.sqlite-wal
 __pycache__/
 *.pyc
+quarterly_samples/
+outputs/
+outputs/longitudinal/
+.fuse_hidden*
