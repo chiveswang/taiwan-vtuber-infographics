@@ -82,8 +82,15 @@ section.on{display:block}
 .story-card .l{color:var(--muted);font-size:12px}
 .story-card .v{font-size:28px;font-weight:800;margin:8px 0;color:#fff}
 .story-card .d{font-size:12.5px;line-height:1.45;color:var(--text)}
+.chapter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:14px 0}
+.chapter{background:#10141d;border:1px solid var(--line);border-radius:8px;padding:18px;min-height:170px}
+.chapter .eyebrow{color:var(--rate);font-size:12px;font-weight:700}
+.chapter h3{font-size:20px;margin:7px 0 10px}
+.chapter .big{font-size:34px;font-weight:900;color:#fff;margin:8px 0}
+.chapter p{color:var(--text);line-height:1.55;margin:0}
 @media(max-width:1100px){.story-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.story-grid{grid-template-columns:1fr}.story-card .v{font-size:24px}}
+@media(max-width:1100px){.chapter-grid{grid-template-columns:1fr}}
+@media(max-width:720px){.story-grid{grid-template-columns:1fr}.story-card .v{font-size:24px}.chapter .big{font-size:27px}}
 </style></head>
 <body><div class="wrap">
 <h1>台灣 VTuber 產業活躍度・季度整合儀表板</h1>
@@ -679,8 +686,9 @@ function buildReport(){
   function render(){const rows=ACT.filter(d=>!d.partial),y=repYear.value,cur=y==="latest"?rows[rows.length-1]:rows.filter(d=>d.quarter.startsWith(y)).slice(-1)[0],coh=COH.series.filter(d=>d.quarter.startsWith(cur.quarter.slice(0,4))),peak=COH.series.reduce((a,b)=>b.debuts>a.debuts?b:a),nat=Object.entries(COH.current.nationality).slice(0,3).map(([k,v])=>`${k} ${fmt(v)}`).join("、"),sh=cur.topvid_buckets||{},sht=Object.values(sh).reduce((a,x)=>a+x,0)||1,peakH=range(24).reduce((a,b)=>STM.yt.industry.hours[b]>STM.yt.industry.hours[a]?b:a,0);
     const dual=Object.keys(XPLAT.channels||{}).length, topDual=Object.values(XPLAT.channels||{}).filter(x=>x.yt_pct>=90&&x.tw_pct>=90).length, topShare=(cur.yt_top10_share*100).toFixed(1);
     const story=[["追蹤台V",fmt(cur.tracked_channels),`近期活躍 ${fmt(cur.recently_active_any)}，活躍率 ${cur.activation_rate}%`],["雙棲頻道",fmt(dual),`${fmt(topDual)} 個同時在 YT/Twitch 前 10%`],["長尾壓力",topShare+"%",`前 10 大訂閱佔比；中位數 ${fmt(cur.yt_subs_median)}`],["內容主軸",maxB(cur.topvid_buckets),`短影音佔熱門影片 ${((sh.shorts||0)/sht*100).toFixed(1)}%`],["開台尖峰",peakH+" 時",`這是開台時間，不是同接尖峰`]];
+    const chapters=[["第一章","台V不是小圈圈，是一個可量測的長尾市場",fmt(cur.tracked_channels),`目前追蹤 ${fmt(cur.tracked_channels)} 個頻道，近期活躍 ${fmt(cur.recently_active_any)}。直播開場可以先問：這裡面誰真的還在動？`],["第二章","平台分工正在成形",fmt(dual),`雙棲頻道 ${fmt(dual)} 個，其中 ${fmt(topDual)} 個同時站進 YouTube/Twitch 前 10%。這適合接到雙棲象限圖。`],["第三章","大者恆大，但長尾還在變厚",topShare+"%",`前 10 大吃掉 ${topShare}% 訂閱；同時訂閱中位數只有 ${fmt(cur.yt_subs_median)}，適合談新人卡位與流量集中。`],["第四章","作息資料能講開台生態，不能冒充同接",peakH+" 時",`YouTube 開台尖峰在台灣時間 ${peakH} 時。這是開台時間，不是觀看尖峰，避免把 proxy 講成真同接。`]];
     const txt=[["產業規模",`追蹤頻道 <b>${fmt(cur.tracked_channels)}</b>，近期活躍 <b>${fmt(cur.recently_active_any)}</b>（活躍率 ${cur.activation_rate}%）。YouTube 訂閱中位數 ${fmt(cur.yt_subs_median)}，Twitch 近期活躍 ${fmt(cur.recently_active_twitch)}。`],["進出場動態",`出道高峰在 ${peak.quarter}，單季 ${peak.debuts} 人；${cur.quarter.slice(0,4)} 年出道 ${fmt(coh.reduce((a,x)=>a+x.debuts,0))}、畢業 ${fmt(coh.reduce((a,x)=>a+x.graduations,0))}。`],["內容趨勢",`熱門影片以 <b>${maxB(cur.topvid_buckets)}</b> 為主，短影音佔 ${((sh.shorts||0)/sht*100).toFixed(1)}%；直播內容主幹為 ${maxB(cur.yt_live_buckets)}。`],["平台版圖",`近期活躍中 YouTube ${fmt(cur.recently_active_yt)}、Twitch ${fmt(cur.recently_active_twitch)}；雙棲頻道 ${fmt(dual)}，其中 ${fmt(topDual)} 個同時位在 YouTube/Twitch 平台內前 10%。`],["集中度",`前 10 大佔全體訂閱 ${topShare}%，訂閱中位數 ${fmt(cur.yt_subs_median)}，長尾持續變厚。`],["世代組成",`國籍前三為 ${nat}；團體 : 個人 = ${fmt(COH.current.group_split.group)} : ${fmt(COH.current.group_split.indie)}。`],["生命週期",`典型台 V 出道 12 個月生命週期中位為 ${GROW.lifecycle.median[12]} 倍初始訂閱，前段 p75 為 ${GROW.lifecycle.p75[12]} 倍。`],["開台生態",`YouTube 開台尖峰落在台灣時間 ${peakH} 時；作息資料已補完 7/7，但這是開台時間，不是觀看尖峰。`]];
-    reportBody.innerHTML=`<div class="story-grid">${story.map(x=>`<div class="story-card"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="d">${x[2]}</div></div>`).join("")}</div>`+txt.map(([h,p])=>`<div class="faq-card"><h4>${h}</h4><div class="faq-line">${p}</div></div>`).join(""); reportBody.dataset.text=story.map(x=>`${x[0]}：${x[1]}｜${x[2]}`).join("\\n")+"\\n\\n"+txt.map(([h,p])=>h+"\\n"+p.replace(/<[^>]+>/g,"")).join("\\n\\n");}
+    reportBody.innerHTML=`<div class="story-grid">${story.map(x=>`<div class="story-card"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="d">${x[2]}</div></div>`).join("")}</div><div class="chapter-grid">${chapters.map(x=>`<div class="chapter"><div class="eyebrow">${x[0]}</div><h3>${x[1]}</h3><div class="big">${x[2]}</div><p>${x[3]}</p></div>`).join("")}</div>`+txt.map(([h,p])=>`<div class="faq-card"><h4>${h}</h4><div class="faq-line">${p}</div></div>`).join(""); reportBody.dataset.text=story.map(x=>`${x[0]}：${x[1]}｜${x[2]}`).join("\\n")+"\\n\\n"+chapters.map(x=>`${x[0]} ${x[1]}\\n${x[2]}｜${x[3]}`).join("\\n\\n")+"\\n\\n"+txt.map(([h,p])=>h+"\\n"+p.replace(/<[^>]+>/g,"")).join("\\n\\n");}
   repYear.onchange=render; repCopy.onclick=async()=>{await navigator.clipboard.writeText(reportBody.dataset.text||"");repStatus.textContent="已複製";}; render();
 }
 
