@@ -122,11 +122,15 @@ def m_basic(rows):
 
 def concentration():
     track = rd(show("current","DATA/TW_VTUBER_TRACK_LIST.csv"))
-    names = {
-        (r.get("ID") or "").strip(): (r.get("Display Name") or r.get("Twitch Channel Name") or "").strip()
-        for r in track
-        if (r.get("ID") or "").strip() and not (r.get("ID") or "").startswith("##")
-    }
+    track_info = {}
+    for r in track:
+        vid = (r.get("ID") or "").strip()
+        if not vid or vid.startswith("##"):
+            continue
+        track_info[vid] = {
+            "n": (r.get("Display Name") or r.get("Twitch Channel Name") or "").strip(),
+            "ac": (r.get("Activity") or "").strip(),
+        }
     conn = sqlite3.connect(DB_PATH)
     try: picks = pick_basic_monthly(conn)
     finally: conn.close()
@@ -140,7 +144,8 @@ def concentration():
             if not vid: continue
             channels[vid] = {
                 "id": vid,
-                "n": names.get(vid) or vid,
+                "n": (track_info.get(vid, {}).get("n") or vid),
+                "ac": track_info.get(vid, {}).get("ac"),
                 "s": ii(r.get("YouTube Subscriber Count")),
                 "v": ii(r.get("YouTube View Count")),
             }
@@ -164,7 +169,7 @@ def concentration():
                 old = prev["channels"].get(vid, {}) if prev else {}
                 ps = None if prev is None or cur.get("s") is None or old.get("s") is None else max(0, cur["s"] - old["s"])
                 pv = None if prev is None or cur.get("v") is None or old.get("v") is None else max(0, cur["v"] - old["v"])
-                rows.append({"id": vid, "n": cur["n"], "s": cur.get("s"), "v": cur.get("v"), "ps": ps, "pv": pv})
+                rows.append({"id": vid, "n": cur["n"], "ac": cur.get("ac"), "s": cur.get("s"), "v": cur.get("v"), "ps": ps, "pv": pv})
             out.append({"label": rec["label"], "at": rec["at"], "channels": rows})
             prev = rec
         return out

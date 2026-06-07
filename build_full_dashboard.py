@@ -157,7 +157,7 @@ section.on{display:block}
       <div id="concTable"></div>
       <div class="card full" style="margin-top:14px">
         <h3>存量 vs 本期流量：特異值</h3>
-        <p class="desc">X=訂閱數百分位，Y=期間觀看數百分位；找出沉睡大台、流量黑馬與注意力超配頻道</p>
+        <p class="desc">X=訂閱數百分位，Y=期間觀看數百分位；只納入 Activity=Active 的頻道，找出沉睡大台、流量黑馬與注意力超配頻道</p>
         <div class="box tall"><canvas id="ccOutlier"></canvas></div>
         <div id="concOutlier"></div>
       </div>
@@ -388,7 +388,7 @@ function buildConc(inclP){
   function pctRank(sorted,v){if(v==null||!isFinite(v)||!sorted.length)return null;let lo=0,hi=sorted.length;while(lo<hi){const m=(lo+hi)>>1;if(sorted[m]<v)lo=m+1;else hi=m;}return +(lo/sorted.length*100).toFixed(1);}
   function renderOutliers(rec){
     if(store.ccOutlier){store.ccOutlier.destroy();store.ccOutlier=null;}
-    const rows=(rec.channels||[]).filter(c=>c.id&&c.s>0&&c.pv!=null&&isFinite(c.pv));
+    const rows=(rec.channels||[]).filter(c=>c.id&&c.ac==="Active"&&c.s>0&&c.pv!=null&&isFinite(c.pv));
     const subs=rows.map(c=>c.s).sort((a,b)=>a-b), flows=rows.map(c=>c.pv).sort((a,b)=>a-b);
     const totalS=rows.reduce((a,c)=>a+c.s,0), totalPv=rows.reduce((a,c)=>a+c.pv,0);
     const pts=rows.map(c=>{const sp=pctRank(subs,c.s), fp=pctRank(flows,c.pv), fps=c.pv/c.s, fpv=c.v?c.pv/c.v:null, shareRatio=(totalS&&totalPv)?((c.pv/totalPv)/(c.s/totalS)):null;return Object.assign({},c,{x:sp,y:fp,fps,fpv,shareRatio});}).filter(c=>c.x!=null&&c.y!=null);
@@ -397,7 +397,7 @@ function buildConc(inclP){
     const dark=pts.filter(p=>p.x<=50&&p.y>=90).sort((a,b)=>b.pv-a.pv).slice(0,8);
     const over=pts.filter(p=>isFinite(p.shareRatio)).sort((a,b)=>b.shareRatio-a.shareRatio).slice(0,8);
     const block=(title,arr,extra)=>`<div class="faq-card"><h4>${title}</h4><table class="table"><thead><tr><th>頻道</th><th>訂閱</th><th>期間觀看數</th><th>${extra}</th></tr></thead><tbody>${arr.map(c=>`<tr><td>${avatar(c)}${escHtml(c.n||c.id)}</td><td>${fmt(c.s)}</td><td>${fmt(c.pv)}</td><td>${extra==="注意力倍數"?c.shareRatio.toFixed(1)+"x":c.fps.toFixed(2)}</td></tr>`).join("")||'<tr><td colspan="4">目前沒有符合條件的頻道。</td></tr>'}</tbody></table></div>`;
-    document.getElementById("concOutlier").innerHTML=`<div class="grid">${block("沉睡大台：訂閱高、期間觀看低",sleep,"期間觀看/訂閱")}${block("流量黑馬：訂閱低、期間觀看高",dark,"期間觀看/訂閱")}${block("注意力超配：期間觀看份額高於訂閱份額",over,"注意力倍數")}</div><div class="footer">期間觀看數以本期累計觀看減前一期累計觀看估算；負向資料校正以 0 處理。</div>`;
+    document.getElementById("concOutlier").innerHTML=`<div class="grid">${block("沉睡大台：訂閱高、期間觀看低",sleep,"期間觀看/訂閱")}${block("流量黑馬：訂閱低、期間觀看高",dark,"期間觀看/訂閱")}${block("注意力超配：期間觀看份額高於訂閱份額",over,"注意力倍數")}</div><div class="footer">特異值只納入 Activity=Active 的頻道；畢業與非活動頻道不列入沉睡/黑馬判斷。期間觀看數以本期累計觀看減前一期累計觀看估算；負向資料校正以 0 處理。</div>`;
   }
   function renderShare(){
     if(store.ccShare){store.ccShare.destroy();store.ccShare=null;}
