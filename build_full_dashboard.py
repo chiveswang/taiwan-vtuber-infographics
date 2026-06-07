@@ -263,7 +263,7 @@ section.on{display:block}
   <div id="locBrief"></div>
   <div class="kpis" id="kpi_loc"></div>
   <div class="grid">
-    <div class="card"><h3>多指標雷達（百分位）</h3><p class="desc">訂閱/累計觀看/Twitch/近期熱度/爆紅力/黏著度/成長動能/開台規律，越外圈越強</p><div class="box tall"><canvas id="lc3"></canvas></div></div>
+    <div class="card"><h3>多指標雷達（百分位）</h3><p class="desc">訂閱/累計觀看/Twitch/近期熱度/爆紅力/黏著度/成長動能/開台規律，越外圈越強</p><div class="box tall"><canvas id="lc3"></canvas></div><div id="locRadarNote" class="footer"></div></div>
     <div class="card"><h3>你的訂閱級距</h3><p class="desc">綠色為你所在的級距</p><div class="box tall"><canvas id="lc2"></canvas></div></div>
     <div class="card full"><h3>你在訂閱排名曲線的位置</h3><p class="desc">全體台V訂閱由高到低（log），綠色菱形是你</p><div class="box tall"><canvas id="lc1"></canvas></div></div>
     <div class="card full"><h3>分組百分位（訂閱）</h3><p class="desc">在不同比較圈裡你贏過多少％：全體 / 同級距 / 同國籍 / 同屆出道</p><div class="box"><canvas id="lc4"></canvas></div></div>
@@ -957,8 +957,12 @@ function drawLocCharts(o){
   // lc3 radar
   const eff=(o.v!=null&&o.s)?o.v/o.s:null;
   const g=locLong(o), st=locStream(o), reff=(o.r!=null&&o.s)?o.r/o.s:null;
-  const rad=[pctile(A.s,o.s),pctile(A.v,o.v),pctile(A.f,o.f),pctile(A.r,o.r),pctile(A.rh,o.rh),pctile(A.reff,reff),g?pctile(LON.mom,g.mom_3m):null,st?pctile(LON.reg,regularity(st)):null].map(x=>x==null?0:x);
-  new Chart(lc3,{type:"radar",data:{labels:["訂閱","累計觀看","Twitch","近期熱度","爆紅力","黏著度","成長動能","開台規律"],
+  const radarLabels=["訂閱","累計觀看","Twitch","近期熱度","爆紅力","黏著度","成長動能","開台規律"];
+  const radarVals=[pctile(A.s,o.s),pctile(A.v,o.v),pctile(A.f,o.f),pctile(A.r,o.r),pctile(A.rh,o.rh),pctile(A.reff,reff),g?pctile(LON.mom,g.mom_3m):null,st?pctile(LON.reg,regularity(st)):null];
+  const rad=radarVals.map(x=>x==null?null:x);
+  const rn=document.getElementById("locRadarNote");
+  if(rn)rn.innerHTML=radarLabels.map((l,i)=>`${l} ${radarVals[i]==null?"資料不足":radarVals[i]+"%"}`).join("・")+(st?`<br>YT 開台樣本 ${fmt(st.n_streams)} 場，${st.first} 至 ${st.last}，活躍週 ${fmt(st.active_weeks)}，最常 ${st.peak_hour} 點。`:"");
+  new Chart(lc3,{type:"radar",data:{labels:radarLabels,
     datasets:[{label:"你的百分位",data:rad,borderColor:"#37d99a",backgroundColor:"#37d99a33",pointBackgroundColor:"#37d99a"}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:TICK,font:{size:10.5}}}},
       scales:{r:{min:0,max:100,angleLines:{color:GRID},grid:{color:GRID},pointLabels:{color:TICK,font:{size:11}},ticks:{color:TICK,backdropColor:"transparent",stepSize:25}}}}});
