@@ -3,236 +3,165 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>台灣 VTuber 生態資訊圖 | Taiwan VTuber Infographics</title>
+    <title>台灣 VTuber 產業資訊圖 | Taiwan VTuber Infographics</title>
     <meta
       name="description"
       content="台灣 VTuber 生態趨勢的隱私友善聚合資訊圖。Privacy-conscious aggregate data visualization dashboard."
     />
-    <meta name="theme-color" content="#f7f8f3" />
-    <meta property="og:title" content="台灣 VTuber 生態資訊圖 | Taiwan VTuber Infographics" />
+    <meta name="theme-color" content="#0f1117" />
+    <meta property="og:title" content="台灣 VTuber 產業資訊圖 | Taiwan VTuber Infographics" />
     <meta
       property="og:description"
-      content="只呈現聚合生態趨勢，不公開原始追蹤列、個人時間線或身份推測。Aggregate-only ecosystem charts."
+      content="只呈現聚合產業趨勢，不公開原始追蹤列、個人時間線、頻道搜尋或身份推測。Aggregate-only ecosystem charts."
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   </head>
   <body>
-    <main class="shell">
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="eyebrow">隱私友善的聚合視角 / Privacy-conscious aggregate view</p>
-          <h1 id="page-title">台灣 VTuber 生態資訊圖</h1>
-          <p class="lede">
-            從公開上游資料整理出的 aggregate-only 資訊圖，只看整體生態趨勢。
-            This view shows ecosystem trends without raw tracking rows, names, IDs, or individual timelines.
-          </p>
-        </div>
-        <div class="hero-panel" aria-label="Privacy boundary">
-          <span class="status-dot"></span>
-          <div>
-            <strong>隱私邊界已啟用 / Privacy boundary active</strong>
-            <p>只載入衍生統計與公開來源 metadata。Only derived counts and public source metadata are loaded.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="summary-grid" aria-label="Aggregate summary">
-        <article class="metric">
-          <span class="metric-label">公開條目 / Public entries</span>
-          <strong id="total-entries">-</strong>
-          <span class="metric-note">來自平台覆蓋聚合 / platform coverage totals</span>
-        </article>
-        <article class="metric">
-          <span class="metric-label">Active 標籤占比 / Active share</span>
-          <strong id="active-share">-</strong>
-          <span class="metric-note">上游 Activity 標籤聚合 / aggregate labels</span>
-        </article>
-        <article class="metric">
-          <span class="metric-label">公開資料集 / Published datasets</span>
-          <strong id="dataset-count">-</strong>
-          <span class="metric-note">列於 public-index.json</span>
-        </article>
-        <article class="metric">
-          <span class="metric-label">圖表素材 / Chart assets</span>
-          <strong id="chart-count">-</strong>
-          <span class="metric-note">可供網站使用的 SVG</span>
-        </article>
-      </section>
-
-      <section class="insight-band" aria-labelledby="insight-title">
+    <main class="wrap">
+      <header class="masthead">
         <div>
-          <h2 id="insight-title">這個頁面在看什麼 / What this view is for</h2>
-          <p>
-            這裡看的是生態層級的趨勢：平台覆蓋、公開狀態標籤、來源密度與季度覆蓋。
-            It explains platform coverage, public status labels, source density, and quarter-level coverage.
+          <h1>台灣 VTuber 產業資訊圖</h1>
+          <p class="sub">
+            Taiwan VTuber industry dashboard ・ aggregate-only ・ privacy-conscious public view
           </p>
         </div>
-        <ul class="boundary-list" aria-label="Excluded data">
-          <li>不做個人排行 / No individual rankings</li>
-          <li>不做即時追蹤 / No real-time tracking</li>
-          <li>不做身份推測 / No identity speculation</li>
-        </ul>
+        <div class="privacy-pill">不含個人層級資料 / no individual-level data</div>
+      </header>
+
+      <div class="note">
+        本公開頁移植自內部 activity dashboard 的視覺與產業層級分析，但只保留季度、類別與統計聚合。
+        不提供頻道搜尋、個人排行、即時追蹤、UC/Twitch ID、頭像、個別軌跡或身份推測。
+      </div>
+
+      <nav class="tabs" aria-label="Dashboard sections">
+        <button class="tab on" type="button" data-tab="overview">總覽 / Overview</button>
+        <button class="tab" type="button" data-tab="cohort">世代 / Cohort</button>
+        <button class="tab" type="button" data-tab="concentration">集中度 / Concentration</button>
+        <button class="tab" type="button" data-tab="content">內容 / Content</button>
+        <button class="tab" type="button" data-tab="sources">公開資料 / Sources</button>
+      </nav>
+
+      <section id="tab-overview" class="panel-section on">
+        <div class="kpis" id="overview-kpis"></div>
+        <div class="grid">
+          <article class="card full">
+            <h2>追蹤規模 vs 近期活躍 / Tracked vs Recently Active</h2>
+            <p class="desc">季度聚合，不顯示任何創作者或頻道列。</p>
+            <div class="box tall"><canvas id="overview-scale"></canvas></div>
+          </article>
+          <article class="card">
+            <h2>活躍率 / Activation Rate</h2>
+            <p class="desc">近期活躍 ÷ 追蹤頻道；2026-06 為未結算季度。</p>
+            <div class="box"><canvas id="activation-rate"></canvas></div>
+          </article>
+          <article class="card">
+            <h2>平台活躍組成 / Platform Activity Mix</h2>
+            <p class="desc">YouTube / Twitch 近期活躍創作者數，可重疊。</p>
+            <div class="box"><canvas id="platform-mix"></canvas></div>
+          </article>
+        </div>
       </section>
 
-      <section class="explorer" aria-labelledby="explorer-title">
-        <div class="chart-heading">
-          <div>
-            <span class="section-kicker">安全探索 / Explore safely</span>
-            <h2 id="explorer-title">聚合趨勢閱讀器 / Aggregate trend reader</h2>
-          </div>
-          <span class="badge">無原始列 / no raw rows</span>
+      <section id="tab-cohort" class="panel-section">
+        <div class="insight">
+          出道潮在 2021Q3 達高點後逐步放緩；畢業維持在較穩定區間。這裡只看世代聚合，不列出任何個別創作者。
         </div>
-        <div class="segmented" role="tablist" aria-label="Metric view">
-          <button class="segment is-active" type="button" data-view="platform" role="tab" aria-selected="true">
-            平台 / Platform
-          </button>
-          <button class="segment" type="button" data-view="status" role="tab" aria-selected="false">
-            狀態 / Status
-          </button>
-          <button class="segment" type="button" data-view="coverage" role="tab" aria-selected="false">
-            覆蓋 / Coverage
-          </button>
+        <div class="grid">
+          <article class="card full">
+            <h2>每季出道 vs 畢業 / Debuts vs Graduations</h2>
+            <p class="desc">新血進場與退場的季度聚合。</p>
+            <div class="box tall"><canvas id="cohort-flow"></canvas></div>
+          </article>
+          <article class="card">
+            <h2>累積淨活躍世代 / Cumulative Net Active</h2>
+            <p class="desc">累積出道減累積畢業；含資料源限制。</p>
+            <div class="box"><canvas id="cohort-cumulative"></canvas></div>
+          </article>
+          <article class="card">
+            <h2>團體 vs 個人 / Group vs Indie Debuts</h2>
+            <p class="desc">每季新出道者的公開聚合分類。</p>
+            <div class="box"><canvas id="cohort-group"></canvas></div>
+          </article>
         </div>
-        <div class="explorer-body">
-          <div>
-            <h3 id="explorer-heading">平台欄位覆蓋 / Platform field coverage</h3>
-            <p id="explorer-copy">
-              統計公開欄位是否包含 YouTube、Twitch、兩者皆有或兩者皆無。
-              Counts whether upstream public fields include YouTube, Twitch, both, or neither.
+      </section>
+
+      <section id="tab-concentration" class="panel-section">
+        <div class="insight">
+          這裡只呈現前段集中度與級距分布的整體趨勢，不提供任何頻道名稱、排名或查詢。
+        </div>
+        <div class="grid">
+          <article class="card full">
+            <h2>頭部集中度 / Top 10 Share</h2>
+            <p class="desc">前 10 大訂閱與觀看占比的季度聚合曲線。</p>
+            <div class="box tall"><canvas id="top-share"></canvas></div>
+          </article>
+          <article class="card full">
+            <h2>訂閱級距金字塔 / Subscriber Tier Pyramid</h2>
+            <p class="desc">以人數級距呈現整體結構，不列個別頻道。</p>
+            <div class="box tall"><canvas id="tier-pyramid"></canvas></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-content" class="panel-section">
+        <div class="insight">
+          內容類型來自標題分類聚合，適合看大方向；不公開影片標題、播放連結、發布時間或創作者名稱。
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h2>熱門影片類型 / Top Video Categories</h2>
+            <p class="desc">最新已結算季度的內容類型分布。</p>
+            <div class="box"><canvas id="top-video-categories"></canvas></div>
+          </article>
+          <article class="card">
+            <h2>Shorts 趨勢 / Shorts Trend</h2>
+            <p class="desc">熱門影片分類中的 shorts 占比。</p>
+            <div class="box"><canvas id="shorts-trend"></canvas></div>
+          </article>
+          <article class="card full">
+            <h2>直播內容組成 / Livestream Categories</h2>
+            <p class="desc">YouTube 與 Twitch 直播標題分類聚合。</p>
+            <div class="box tall"><canvas id="livestream-categories"></canvas></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-sources" class="panel-section">
+        <div class="grid">
+          <article class="card">
+            <h2>公開安全檢查 / Public Safety Gate</h2>
+            <p class="desc">
+              通過：只載入衍生統計與公開來源 metadata。No names, IDs, raw rows, individual timelines, rankings, or live tracking.
             </p>
-          </div>
-          <div class="mini-grid" aria-label="Selected aggregate facts">
-            <article>
-              <span id="fact-a-label">最大類別 / Largest category</span>
-              <strong id="fact-a">-</strong>
-            </article>
-            <article>
-              <span id="fact-b-label">最小類別 / Smallest category</span>
-              <strong id="fact-b">-</strong>
-            </article>
-            <article>
-              <span id="fact-c-label">隱私規則 / Privacy rule</span>
-              <strong id="fact-c">只看聚合 / Aggregate only</strong>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="chart-grid" aria-label="Charts">
-        <article class="chart-card wide">
-          <div class="chart-heading">
-            <div>
-              <span class="section-kicker">平台組成 / Platform mix</span>
-              <h2>平台覆蓋 / Platform Coverage</h2>
-            </div>
-            <span class="badge">real-derived</span>
-          </div>
-          <img src="../charts/exports/platform-coverage-summary.svg" alt="Aggregate platform coverage chart" />
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-heading">
-            <div>
-              <span class="section-kicker">公開標籤 / Public labels</span>
-              <h2>狀態摘要 / Status Summary</h2>
-            </div>
-            <span class="badge">not real-time</span>
-          </div>
-          <img src="../charts/exports/public-status-summary.svg" alt="Aggregate public status label chart" />
-        </article>
-
-        <article class="chart-card">
-          <div class="chart-heading">
-            <div>
-              <span class="section-kicker">季度視角 / Quarterly view</span>
-              <h2>生態覆蓋 / Ecosystem Coverage</h2>
-            </div>
-            <span class="badge">metadata</span>
-          </div>
-          <img src="../charts/exports/quarterly-ecosystem-coverage.svg" alt="Quarterly source coverage chart" />
-        </article>
-
-        <article class="chart-card wide">
-          <div class="chart-heading">
-            <div>
-              <span class="section-kicker">來源密度 / Source density</span>
-              <h2>來源覆蓋 / Source Coverage</h2>
-            </div>
-            <span class="badge">repo metadata</span>
-          </div>
-          <img src="../charts/exports/source-coverage-summary.svg" alt="Monthly source coverage chart" />
-        </article>
-      </section>
-
-      <section class="trend-grid" aria-label="Trend notes">
-        <article>
-          <span class="section-kicker">最新來源月份 / Latest source month</span>
-          <strong id="latest-source-month">-</strong>
-          <p id="latest-source-note">由公開來源 metadata 計算 / Calculated from public source metadata.</p>
-        </article>
-        <article>
-          <span class="section-kicker">資料最密季度 / Densest quarter</span>
-          <strong id="densest-quarter">-</strong>
-          <p id="densest-quarter-note">季度 metadata 計數，不代表創作者活動量 / not creator activity.</p>
-        </article>
-        <article>
-          <span class="section-kicker">公開安全檢查 / Public safety gate</span>
-          <strong>通過 / Pass</strong>
-          <p>不載入姓名、ID、原始列、個人時間線或排行。No names, IDs, raw rows, timelines, or rankings.</p>
-        </article>
-      </section>
-
-      <section class="story-section" aria-labelledby="story-title">
-        <div class="chart-heading">
-          <div>
-            <span class="section-kicker">重點解讀 / Readable takeaways</span>
-            <h2 id="story-title">不追蹤個人的產業訊號 / Industry signals without personal tracking</h2>
-          </div>
-          <span class="badge">聚合解讀 / aggregate interpretation</span>
-        </div>
-        <div class="story-grid">
-          <article>
-            <span>平台訊號 / Platform signal</span>
-            <strong id="platform-signal">-</strong>
-            <p id="platform-signal-note">由公開欄位覆蓋衍生 / Derived from public field coverage.</p>
           </article>
-          <article>
-            <span>狀態訊號 / Status signal</span>
-            <strong id="status-signal">-</strong>
-            <p id="status-signal-note">由上游 Activity 標籤衍生 / Derived from upstream Activity labels.</p>
+          <article class="card">
+            <h2>資料來源 / Source Attribution</h2>
+            <p class="desc">
+              Derived from TaiwanVtuberData current + archive projects, with provenance kept at source-project level.
+            </p>
           </article>
-          <article>
-            <span>來源訊號 / Source signal</span>
-            <strong id="source-signal">-</strong>
-            <p id="source-signal-note">由 repo metadata 衍生 / Derived from repository metadata.</p>
+          <article class="card full">
+            <h2>可供網站使用的輸出 / Website-ready Outputs</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>輸出 / Output</th>
+                    <th>狀態 / Status</th>
+                    <th>類型 / Type</th>
+                    <th>隱私說明 / Privacy note</th>
+                  </tr>
+                </thead>
+                <tbody id="outputs-table">
+                  <tr>
+                    <td colspan="4">載入公開輸出中... / Loading public outputs...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </article>
-        </div>
-      </section>
-
-      <section class="data-table-section" aria-labelledby="datasets-title">
-        <div class="chart-heading">
-          <div>
-            <span class="section-kicker">公開索引 / Public index</span>
-            <h2 id="datasets-title">可供網站使用的輸出 / Website-ready outputs</h2>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>輸出 / Output</th>
-                <th>狀態 / Status</th>
-                <th>類型 / Type</th>
-                <th>隱私說明 / Privacy note</th>
-              </tr>
-            </thead>
-            <tbody id="outputs-table">
-              <tr>
-                <td colspan="4">載入公開輸出中... / Loading public outputs...</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </section>
     </main>

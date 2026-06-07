@@ -1,0 +1,27 @@
+aggregate_period,partial,debuts,graduations,net,cumulative_active,debuts_tw,debuts_hk,debuts_my,debuts_other,debuts_indie,debuts_group,source_url,last_verified
+2020-03,false,3,0,3,10,3,0,0,0,1,2,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2020-06,false,6,0,6,16,3,2,1,0,5,1,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2020-09,false,17,0,17,33,10,5,2,0,11,6,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2020-12,false,56,0,56,89,35,15,6,0,45,11,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2021-03,false,100,0,100,189,76,12,11,1,70,30,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2021-06,false,203,3,200,389,134,51,16,2,159,44,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2021-09,false,271,4,267,656,204,51,12,4,218,53,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2021-12,false,204,19,185,841,148,42,9,5,157,47,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2022-03,false,213,20,193,1034,181,17,11,4,160,53,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2022-06,false,191,21,170,1204,163,14,12,2,140,51,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2022-09,false,220,26,194,1398,175,6,13,26,162,58,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2022-12,false,169,27,142,1540,146,5,6,12,127,42,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2023-03,false,129,18,111,1651,114,5,2,8,95,34,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2023-06,false,150,25,125,1776,125,7,5,13,118,32,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2023-09,false,182,24,158,1934,160,7,6,9,138,44,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2023-12,false,131,14,117,2051,113,6,6,6,84,47,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2024-03,false,122,14,108,2159,116,0,1,5,78,44,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2024-06,false,122,17,105,2264,110,5,2,5,90,32,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2024-09,false,116,16,100,2364,111,1,2,2,76,40,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2024-12,false,105,24,81,2445,98,2,2,3,79,26,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2025-03,false,105,22,83,2528,99,0,5,1,75,30,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2025-06,false,98,19,79,2607,96,0,2,0,75,23,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2025-09,false,133,10,123,2730,121,4,5,3,106,27,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2025-12,false,77,17,60,2790,73,0,3,1,45,32,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2026-03,false,71,14,57,2847,67,1,2,1,46,25,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07
+2026-06,true,46,9,37,2884,42,2,1,1,31,15,https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData; https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive,2026-06-07

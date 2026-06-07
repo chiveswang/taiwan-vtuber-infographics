@@ -57,6 +57,33 @@
       "status": "real-derived",
       "last_verified": "2026-06-07",
       "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied."
+    },
+    {
+      "id": "activity-quarterly-summary",
+      "title": "Activity quarterly summary",
+      "path": "data/derived/activity-quarterly-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; no channel names, IDs, rankings, or individual timelines."
+    },
+    {
+      "id": "cohort-quarterly-summary",
+      "title": "Cohort quarterly summary",
+      "path": "data/derived/cohort-quarterly-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Quarter-level debut, graduation, nationality bucket, and group/indie aggregate counts only; no individual creator rows."
+    },
+    {
+      "id": "content-category-quarterly-summary",
+      "title": "Content category quarterly summary",
+      "path": "data/derived/content-category-quarterly-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Quarter-level title-category aggregates only; no video titles, publish times, URLs, channel names, or creator IDs."
     }
   ],
   "charts": [

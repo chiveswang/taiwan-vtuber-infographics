@@ -43,6 +43,20 @@ python scripts/generate_real_derived_data.py
 
 注意：上游 repo 可能高頻更新，因此 CI 不會自動執行此腳本。更新真實 derived data 時，請在本地執行、檢查差異，再 commit。
 
+## Import Activity Dashboard Aggregates
+
+```bash
+python scripts/import_activity_dashboard_aggregates.py path/to/vtuber_activity_dashboard.html
+```
+
+此腳本從既有 `activity/vtuber_activity_dashboard.html` 抽取白名單聚合欄位，只輸出：
+
+- `data/derived/activity-quarterly-summary.csv`
+- `data/derived/cohort-quarterly-summary.csv`
+- `data/derived/content-category-quarterly-summary.csv`
+
+不要把來源 HTML、頻道搜尋資料、個人排行、頻道 ID、影片標題、直播 URL 或個別軌跡資料放入本 repo。
+
 ## Validate Static Dashboard
 
 ```bash
