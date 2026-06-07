@@ -31,6 +31,12 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 
 本專案採取最小揭露原則。當資料可能增加個人風險時，應優先移除、模糊化、分組或聚合，而不是追求完整性。
 
+## Source Project and Provenance
+
+公開資料可由另一個既有資料專案衍生，但本 repo 只發布經過 privacy review 的 aggregate-only outputs，不發布原始資料或個人層級追蹤資料。
+
+來源標記方式請見 [docs/sources.md](docs/sources.md) 與 [docs/provenance-log.md](docs/provenance-log.md)。
+
 ## Repo 結構
 
 - `docs/`: 方法論、資料邊界、資料來源與修正移除流程。

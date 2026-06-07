@@ -5,11 +5,13 @@
 ## 資料流程
 
 1. 從既有專案或公開來源取得候選資料。
-2. 移除禁止欄位與高風險個人資訊。
-3. 將可能敏感的個人層級資料轉成 aggregate data。
-4. 保留 source URL、last verified 與資料處理說明。
-5. 產出 derived data 與 charts。
-6. 檢查圖表是否可能反推出個人作息、身份或敏感狀態。
+2. 記錄 source project、snapshot date 與轉換目的，但不公開私有 repo URL、本機路徑或原始資料檔名。
+3. 移除禁止欄位與高風險個人資訊。
+4. 將可能敏感的個人層級資料轉成 aggregate data。
+5. 保留 source URL、last verified 與資料處理說明。
+6. 產出 derived data 與 charts。
+7. 檢查圖表是否可能反推出個人作息、身份或敏感狀態。
+8. 在 `docs/provenance-log.md` 記錄公開衍生輸出的來源流程。
 
 ## 發布標準
 
@@ -19,6 +21,7 @@
 - 不包含禁止欄位。
 - 不支援即時追蹤。
 - 不揭露個人層級敏感時間序列。
+- 有來源流程紀錄，但不暴露私有上游資料。
 - 可被修正、移除或重新產出。
 
 ## 圖表建議

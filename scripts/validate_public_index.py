@@ -11,7 +11,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "data" / "derived" / "public-index.json"
 
-REQUIRED_TOP_LEVEL = {"project", "generated_at", "privacy_scope", "datasets", "charts"}
+REQUIRED_TOP_LEVEL = {
+    "project",
+    "generated_at",
+    "privacy_scope",
+    "source_project_policy",
+    "datasets",
+    "charts",
+}
 REQUIRED_DATASET_FIELDS = {"id", "title", "path", "type", "status", "last_verified", "privacy_note"}
 REQUIRED_CHART_FIELDS = {"id", "title", "path", "type", "status", "source_dataset", "privacy_note"}
 

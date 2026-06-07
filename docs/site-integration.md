@@ -8,6 +8,7 @@
 - 順揚宮網站只應讀取已公開、已聚合、已通過 privacy review 的資料。
 - 順揚宮網站不應直接讀取另一個專案的原始 tracking data。
 - 若網站需要互動圖表，應使用 `data/derived/` 或 `charts/exports/` 的公開產物。
+- 順揚宮網站可顯示本 repo 的 provenance 說明，但不應顯示私有上游 repo URL、本機路徑或原始資料檔名。
 
 ## 建議資料交換方式
 

@@ -22,6 +22,7 @@
 6. 搜尋 private account details、email、真名、住址、學校、私人帳號等字串。
 7. 確認 README 沒有暗示這是個人追蹤資料庫。
 8. 確認 `docs/site-integration.md` 仍把順揚宮網站定位為展示端。
+9. 確認 `docs/provenance-log.md` 已標記公開衍生資料來源流程，且沒有暴露私有路徑或原始資料檔名。
 
 ## 建立 GitHub repo 後
 

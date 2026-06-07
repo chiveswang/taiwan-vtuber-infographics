@@ -2,6 +2,7 @@
   "project": "taiwan-vtuber-infographics",
   "generated_at": "2026-06-07",
   "privacy_scope": "aggregate-only sample data; no raw tracking data",
+  "source_project_policy": "Derived outputs may reference an upstream source project at the provenance level, but raw data and private source details are not published.",
   "datasets": [
     {
       "id": "aggregate-summary",
