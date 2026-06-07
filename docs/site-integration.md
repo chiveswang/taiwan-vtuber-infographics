@@ -22,6 +22,14 @@
 - `data/derived/*.csv`
 - `charts/exports/*.svg`
 
+## 建議頁面模組
+
+- ecosystem snapshot。
+- monthly trend explorer。
+- platform / content mix。
+- source and privacy notes。
+- correction / removal link。
+
 ## 不建議
 
 - 在網站端即時查詢原始追蹤資料。

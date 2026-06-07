@@ -49,3 +49,18 @@
 - 類別樣本太小時應合併或不發布。
 - 不發布可直接比較個人的敏感排名。
 - 不發布可反推個人生活節奏的細節。
+
+## 優先公開資訊產品
+
+- source coverage summary。
+- platform coverage summary。
+- monthly content category summary。
+- quarterly ecosystem summary。
+
+## 不做的資訊產品
+
+- 個人排行榜。
+- 個人活躍時間分析。
+- 個人訂閱數或觀看數成長曲線。
+- 個人合作網絡圖。
+- 即時追蹤 dashboard。

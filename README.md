@@ -11,6 +11,8 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 - 保留 source URL、last verified 與 correction / removal request 流程。
 - 讓資料視覺化成果可以被重現、審查與修正。
 
+完整產品範圍請見 [docs/product-scope.md](docs/product-scope.md)。從 mock data 進入真實 derived data 的計畫請見 [docs/real-data-intake-plan.md](docs/real-data-intake-plan.md)。
+
 ## 這個專案會公開什麼
 
 - 聚合後的趨勢資料。

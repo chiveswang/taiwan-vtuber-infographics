@@ -23,6 +23,7 @@
 7. 確認 README 沒有暗示這是個人追蹤資料庫。
 8. 確認 `docs/site-integration.md` 仍把順揚宮網站定位為展示端。
 9. 確認 `docs/provenance-log.md` 已標記公開衍生資料來源流程，且沒有暴露私有路徑或原始資料檔名。
+10. 確認 `docs/product-scope.md` 與本次新增資料產品一致。
 
 ## 建立 GitHub repo 後
 
