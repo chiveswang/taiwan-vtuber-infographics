@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Taiwan VTuber Infographics</title>
+    <title>台灣 VTuber 生態資訊圖 | Taiwan VTuber Infographics</title>
     <meta
       name="description"
-      content="Privacy-conscious aggregate data visualization dashboard for Taiwan VTuber ecosystem trends."
+      content="台灣 VTuber 生態趨勢的隱私友善聚合資訊圖。Privacy-conscious aggregate data visualization dashboard."
     />
     <meta name="theme-color" content="#f7f8f3" />
-    <meta property="og:title" content="Taiwan VTuber Infographics" />
+    <meta property="og:title" content="台灣 VTuber 生態資訊圖 | Taiwan VTuber Infographics" />
     <meta
       property="og:description"
-      content="Aggregate-only ecosystem charts. No raw tracking rows, individual timelines, or identity speculation."
+      content="只呈現聚合生態趨勢，不公開原始追蹤列、個人時間線或身份推測。Aggregate-only ecosystem charts."
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="styles.css" />
@@ -21,98 +21,99 @@
     <main class="shell">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <p class="eyebrow">Privacy-conscious aggregate view</p>
-          <h1 id="page-title">Taiwan VTuber Ecosystem</h1>
+          <p class="eyebrow">隱私友善的聚合視角 / Privacy-conscious aggregate view</p>
+          <h1 id="page-title">台灣 VTuber 生態資訊圖</h1>
           <p class="lede">
-            Public, aggregate-only infographics derived from upstream open data.
-            No raw tracking rows, names, IDs, or individual timelines are shown here.
+            從公開上游資料整理出的 aggregate-only 資訊圖，只看整體生態趨勢。
+            This view shows ecosystem trends without raw tracking rows, names, IDs, or individual timelines.
           </p>
         </div>
         <div class="hero-panel" aria-label="Privacy boundary">
           <span class="status-dot"></span>
           <div>
-            <strong>Privacy boundary active</strong>
-            <p>Only derived counts and public source metadata are loaded.</p>
+            <strong>隱私邊界已啟用 / Privacy boundary active</strong>
+            <p>只載入衍生統計與公開來源 metadata。Only derived counts and public source metadata are loaded.</p>
           </div>
         </div>
       </section>
 
       <section class="summary-grid" aria-label="Aggregate summary">
         <article class="metric">
-          <span class="metric-label">Public entries</span>
+          <span class="metric-label">公開條目 / Public entries</span>
           <strong id="total-entries">-</strong>
-          <span class="metric-note">from platform coverage totals</span>
+          <span class="metric-note">來自平台覆蓋聚合 / platform coverage totals</span>
         </article>
         <article class="metric">
-          <span class="metric-label">Active label share</span>
+          <span class="metric-label">Active 標籤占比 / Active share</span>
           <strong id="active-share">-</strong>
-          <span class="metric-note">aggregate upstream Activity labels</span>
+          <span class="metric-note">上游 Activity 標籤聚合 / aggregate labels</span>
         </article>
         <article class="metric">
-          <span class="metric-label">Published datasets</span>
+          <span class="metric-label">公開資料集 / Published datasets</span>
           <strong id="dataset-count">-</strong>
-          <span class="metric-note">listed in public-index.json</span>
+          <span class="metric-note">列於 public-index.json</span>
         </article>
         <article class="metric">
-          <span class="metric-label">Chart assets</span>
+          <span class="metric-label">圖表素材 / Chart assets</span>
           <strong id="chart-count">-</strong>
-          <span class="metric-note">website-ready SVG exports</span>
+          <span class="metric-note">可供網站使用的 SVG</span>
         </article>
       </section>
 
       <section class="insight-band" aria-labelledby="insight-title">
         <div>
-          <h2 id="insight-title">What this view is for</h2>
+          <h2 id="insight-title">這個頁面在看什麼 / What this view is for</h2>
           <p>
-            This dashboard explains ecosystem-scale patterns: platform coverage,
-            public status labels, source density, and quarter-level coverage.
+            這裡看的是生態層級的趨勢：平台覆蓋、公開狀態標籤、來源密度與季度覆蓋。
+            It explains platform coverage, public status labels, source density, and quarter-level coverage.
           </p>
         </div>
         <ul class="boundary-list" aria-label="Excluded data">
-          <li>No individual rankings</li>
-          <li>No real-time tracking</li>
-          <li>No identity speculation</li>
+          <li>不做個人排行 / No individual rankings</li>
+          <li>不做即時追蹤 / No real-time tracking</li>
+          <li>不做身份推測 / No identity speculation</li>
         </ul>
       </section>
 
       <section class="explorer" aria-labelledby="explorer-title">
         <div class="chart-heading">
           <div>
-            <span class="section-kicker">Explore safely</span>
-            <h2 id="explorer-title">Aggregate trend reader</h2>
+            <span class="section-kicker">安全探索 / Explore safely</span>
+            <h2 id="explorer-title">聚合趨勢閱讀器 / Aggregate trend reader</h2>
           </div>
-          <span class="badge">no raw rows</span>
+          <span class="badge">無原始列 / no raw rows</span>
         </div>
         <div class="segmented" role="tablist" aria-label="Metric view">
           <button class="segment is-active" type="button" data-view="platform" role="tab" aria-selected="true">
-            Platform
+            平台 / Platform
           </button>
           <button class="segment" type="button" data-view="status" role="tab" aria-selected="false">
-            Status
+            狀態 / Status
           </button>
           <button class="segment" type="button" data-view="coverage" role="tab" aria-selected="false">
-            Coverage
+            覆蓋 / Coverage
           </button>
         </div>
         <div class="explorer-body">
           <div>
-            <h3 id="explorer-heading">Platform field coverage</h3>
+            <h3 id="explorer-heading">平台欄位覆蓋 / Platform field coverage</h3>
             <p id="explorer-copy">
-              Counts entries by whether upstream public fields include YouTube, Twitch, both, or neither.
+              統計公開欄位是否包含 YouTube、Twitch、兩者皆有或兩者皆無。
+              Counts whether upstream public fields include YouTube, Twitch, both, or neither.
             </p>
           </div>
           <div class="mini-grid" aria-label="Selected aggregate facts">
             <article>
-              <span id="fact-a-label">Largest category</span>
+              <span id="fact-a-label">最大類別 / Largest category</span>
               <strong id="fact-a">-</strong>
             </article>
             <article>
-              <span id="fact-b-label">Smallest category</span>
+              <span id="fact-b-label">最小類別 / Smallest category</span>
               <strong id="fact-b">-</strong>
             </article>
             <article>
-              <span id="fact-c-label">Privacy rule</span>
-              <strong id="fact-c">Aggregate only</strong>
+              <span id="fact-c-label">隱私規則 / Privacy rule</span>
+              <strong id="fact-c">只看聚合 / Aggregate only</strong>
             </article>
           </div>
         </div>
@@ -122,8 +123,8 @@
         <article class="chart-card wide">
           <div class="chart-heading">
             <div>
-              <span class="section-kicker">Platform mix</span>
-              <h2>Platform Coverage</h2>
+              <span class="section-kicker">平台組成 / Platform mix</span>
+              <h2>平台覆蓋 / Platform Coverage</h2>
             </div>
             <span class="badge">real-derived</span>
           </div>
@@ -133,8 +134,8 @@
         <article class="chart-card">
           <div class="chart-heading">
             <div>
-              <span class="section-kicker">Public labels</span>
-              <h2>Status Summary</h2>
+              <span class="section-kicker">公開標籤 / Public labels</span>
+              <h2>狀態摘要 / Status Summary</h2>
             </div>
             <span class="badge">not real-time</span>
           </div>
@@ -144,8 +145,8 @@
         <article class="chart-card">
           <div class="chart-heading">
             <div>
-              <span class="section-kicker">Quarterly view</span>
-              <h2>Ecosystem Coverage</h2>
+              <span class="section-kicker">季度視角 / Quarterly view</span>
+              <h2>生態覆蓋 / Ecosystem Coverage</h2>
             </div>
             <span class="badge">metadata</span>
           </div>
@@ -155,8 +156,8 @@
         <article class="chart-card wide">
           <div class="chart-heading">
             <div>
-              <span class="section-kicker">Source density</span>
-              <h2>Source Coverage</h2>
+              <span class="section-kicker">來源密度 / Source density</span>
+              <h2>來源覆蓋 / Source Coverage</h2>
             </div>
             <span class="badge">repo metadata</span>
           </div>
@@ -166,45 +167,45 @@
 
       <section class="trend-grid" aria-label="Trend notes">
         <article>
-          <span class="section-kicker">Latest source month</span>
+          <span class="section-kicker">最新來源月份 / Latest source month</span>
           <strong id="latest-source-month">-</strong>
-          <p id="latest-source-note">Calculated from public source metadata.</p>
+          <p id="latest-source-note">由公開來源 metadata 計算 / Calculated from public source metadata.</p>
         </article>
         <article>
-          <span class="section-kicker">Densest quarter</span>
+          <span class="section-kicker">資料最密季度 / Densest quarter</span>
           <strong id="densest-quarter">-</strong>
-          <p id="densest-quarter-note">Quarter-level metadata count, not creator activity.</p>
+          <p id="densest-quarter-note">季度 metadata 計數，不代表創作者活動量 / not creator activity.</p>
         </article>
         <article>
-          <span class="section-kicker">Public safety gate</span>
-          <strong>Pass</strong>
-          <p>No names, IDs, raw rows, individual timelines, or rankings are loaded.</p>
+          <span class="section-kicker">公開安全檢查 / Public safety gate</span>
+          <strong>通過 / Pass</strong>
+          <p>不載入姓名、ID、原始列、個人時間線或排行。No names, IDs, raw rows, timelines, or rankings.</p>
         </article>
       </section>
 
       <section class="story-section" aria-labelledby="story-title">
         <div class="chart-heading">
           <div>
-            <span class="section-kicker">Readable takeaways</span>
-            <h2 id="story-title">Industry signals without personal tracking</h2>
+            <span class="section-kicker">重點解讀 / Readable takeaways</span>
+            <h2 id="story-title">不追蹤個人的產業訊號 / Industry signals without personal tracking</h2>
           </div>
-          <span class="badge">aggregate interpretation</span>
+          <span class="badge">聚合解讀 / aggregate interpretation</span>
         </div>
         <div class="story-grid">
           <article>
-            <span>Platform signal</span>
+            <span>平台訊號 / Platform signal</span>
             <strong id="platform-signal">-</strong>
-            <p id="platform-signal-note">Derived from public field coverage.</p>
+            <p id="platform-signal-note">由公開欄位覆蓋衍生 / Derived from public field coverage.</p>
           </article>
           <article>
-            <span>Status signal</span>
+            <span>狀態訊號 / Status signal</span>
             <strong id="status-signal">-</strong>
-            <p id="status-signal-note">Derived from upstream Activity labels.</p>
+            <p id="status-signal-note">由上游 Activity 標籤衍生 / Derived from upstream Activity labels.</p>
           </article>
           <article>
-            <span>Source signal</span>
+            <span>來源訊號 / Source signal</span>
             <strong id="source-signal">-</strong>
-            <p id="source-signal-note">Derived from repository metadata.</p>
+            <p id="source-signal-note">由 repo metadata 衍生 / Derived from repository metadata.</p>
           </article>
         </div>
       </section>
@@ -212,23 +213,23 @@
       <section class="data-table-section" aria-labelledby="datasets-title">
         <div class="chart-heading">
           <div>
-            <span class="section-kicker">Public index</span>
-            <h2 id="datasets-title">Website-ready outputs</h2>
+            <span class="section-kicker">公開索引 / Public index</span>
+            <h2 id="datasets-title">可供網站使用的輸出 / Website-ready outputs</h2>
           </div>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Output</th>
-                <th>Status</th>
-                <th>Type</th>
-                <th>Privacy note</th>
+                <th>輸出 / Output</th>
+                <th>狀態 / Status</th>
+                <th>類型 / Type</th>
+                <th>隱私說明 / Privacy note</th>
               </tr>
             </thead>
             <tbody id="outputs-table">
               <tr>
-                <td colspan="4">Loading public outputs...</td>
+                <td colspan="4">載入公開輸出中... / Loading public outputs...</td>
               </tr>
             </tbody>
           </table>

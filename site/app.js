@@ -47,10 +47,14 @@ function formatNumber(value) {
 
 function displayLabel(value) {
   const labels = {
-    no_public_platform_id: "no public id",
-    twitch_only: "twitch only",
-    youtube_and_twitch: "both platforms",
-    youtube_only: "youtube only",
+    no_public_platform_id: "無公開平台 ID / no public id",
+    twitch_only: "僅 Twitch / twitch only",
+    youtube_and_twitch: "雙平台 / both platforms",
+    youtube_only: "僅 YouTube / youtube only",
+    active: "活動中 / active",
+    graduated: "已畢業 / graduated",
+    preparing: "準備中 / preparing",
+    unknown: "未知 / unknown",
   };
   return labels[value] ?? value;
 }
@@ -70,34 +74,34 @@ function sumRows(rows) {
 function setExplorer(view, datasets) {
   const copy = {
     platform: {
-      heading: "Platform field coverage",
-      body: "Counts entries by whether upstream public fields include YouTube, Twitch, both, or neither.",
+      heading: "平台欄位覆蓋 / Platform field coverage",
+      body: "統計公開欄位是否包含 YouTube、Twitch、兩者皆有或兩者皆無。Counts whether upstream public fields include YouTube, Twitch, both, or neither.",
       rows: datasets.platformRows,
       key: "platform_category",
-      factA: "Largest category",
-      factB: "Smallest category",
-      factC: "Privacy rule",
-      factCValue: "No IDs shown",
+      factA: "最大類別 / Largest category",
+      factB: "最小類別 / Smallest category",
+      factC: "隱私規則 / Privacy rule",
+      factCValue: "不顯示 ID / No IDs shown",
     },
     status: {
-      heading: "Public status labels",
-      body: "Aggregates upstream Activity labels. This is not a live status monitor.",
+      heading: "公開狀態標籤 / Public status labels",
+      body: "聚合上游 Activity 標籤；這不是即時狀態監控。Aggregates upstream Activity labels; this is not a live status monitor.",
       rows: datasets.statusRows,
       key: "public_status_category",
-      factA: "Largest label",
-      factB: "Smallest label",
-      factC: "Safety note",
-      factCValue: "Not real-time",
+      factA: "最大標籤 / Largest label",
+      factB: "最小標籤 / Smallest label",
+      factC: "安全說明 / Safety note",
+      factCValue: "非即時 / Not real-time",
     },
     coverage: {
-      heading: "Source metadata coverage",
-      body: "Summarizes repository snapshot density by month. This describes source coverage, not individual activity.",
+      heading: "來源 metadata 覆蓋 / Source metadata coverage",
+      body: "按月份摘要 repo snapshot 密度；這描述來源覆蓋，不代表個人活動。Summarizes repository snapshot density, not individual activity.",
       rows: datasets.sourceRows,
       key: "source_category",
-      factA: "Latest month",
-      factB: "Rows published",
-      factC: "Privacy rule",
-      factCValue: "Metadata only",
+      factA: "最新月份 / Latest month",
+      factB: "公開列數 / Rows published",
+      factC: "隱私規則 / Privacy rule",
+      factCValue: "只看 metadata / Metadata only",
     },
   }[view];
 
@@ -154,11 +158,11 @@ async function init() {
   document.querySelector("#latest-source-month").textContent = latestSourceMonth;
   document.querySelector("#latest-source-note").textContent = `${formatNumber(
     sourceRows.filter((row) => row.aggregate_period === latestSourceMonth).reduce((sum, row) => sum + Number(row.aggregate_count), 0),
-  )} public snapshot metadata records in this month.`;
+  )} 筆公開 snapshot metadata / public snapshot metadata records in this month.`;
   document.querySelector("#densest-quarter").textContent = quarterTotals[0][0];
   document.querySelector("#densest-quarter-note").textContent = `${formatNumber(
     quarterTotals[0][1],
-  )} source metadata records in the quarter-level aggregate.`;
+  )} 筆季度來源 metadata / source metadata records in this quarter-level aggregate.`;
 
   const leadingPlatform = [...platformRows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0];
   const leadingStatus = [...statusRows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0];
@@ -166,19 +170,19 @@ async function init() {
     .filter((row) => row.aggregate_period === latestSourceMonth)
     .reduce((sum, row) => sum + Number(row.aggregate_count), 0);
 
-  document.querySelector("#platform-signal").textContent = `${displayLabel(leadingPlatform.platform_category)} leads`;
+  document.querySelector("#platform-signal").textContent = `${displayLabel(leadingPlatform.platform_category)} 領先 / leads`;
   document.querySelector("#platform-signal-note").textContent = `${formatNumber(
     leadingPlatform.aggregate_count,
-  )} entries, ${percent(Number(leadingPlatform.aggregate_count), totalEntries)} of the aggregate platform coverage total.`;
-  document.querySelector("#status-signal").textContent = `${leadingStatus.public_status_category} dominates`;
+  )} 筆，占平台覆蓋聚合 ${percent(Number(leadingPlatform.aggregate_count), totalEntries)} / of aggregate platform coverage.`;
+  document.querySelector("#status-signal").textContent = `${displayLabel(leadingStatus.public_status_category)} 為主 / dominates`;
   document.querySelector("#status-signal-note").textContent = `${percent(
     Number(leadingStatus.aggregate_count),
     statusTotal,
-  )} of upstream public Activity labels are in this category.`;
-  document.querySelector("#source-signal").textContent = `${latestSourceMonth} is current`;
+  )} 的上游公開 Activity 標籤屬於此類 / of upstream public Activity labels.`;
+  document.querySelector("#source-signal").textContent = `${latestSourceMonth} 為最新 / is current`;
   document.querySelector("#source-signal-note").textContent = `${formatNumber(
     latestSourceTotal,
-  )} source metadata records are available for the latest month in this public index.`;
+  )} 筆來源 metadata 可用於最新月份 / source metadata records in latest month.`;
 
   const datasets = { platformRows, statusRows, sourceRows };
   setExplorer("platform", datasets);
@@ -209,6 +213,6 @@ async function init() {
 
 init().catch((error) => {
   document.querySelector("#outputs-table").innerHTML = `
-    <tr><td colspan="4">Unable to load public outputs: ${error.message}</td></tr>
+    <tr><td colspan="4">無法載入公開輸出 / Unable to load public outputs: ${error.message}</td></tr>
   `;
 });

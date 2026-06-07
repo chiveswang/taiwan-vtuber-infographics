@@ -66,6 +66,7 @@ h1 {
 h2 {
   font-size: 1.22rem;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .lede {
@@ -172,7 +173,7 @@ h2 {
   background: #fff;
   color: var(--slate);
   font-size: 0.78rem;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .chart-grid {
@@ -224,6 +225,7 @@ h2 {
 .explorer h3 {
   margin: 0;
   font-size: 1.55rem;
+  overflow-wrap: anywhere;
 }
 
 .explorer p {
@@ -269,6 +271,10 @@ h2 {
 .story-section {
   margin-top: 18px;
   padding: 18px;
+}
+
+.story-section .chart-heading {
+  display: block;
 }
 
 .story-grid {
@@ -328,6 +334,12 @@ h2 {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chart-heading > * {
+  min-width: 0;
 }
 
 .chart-card img {
@@ -400,5 +412,20 @@ td {
   .segmented {
     display: grid;
     width: 100%;
+  }
+
+  .chart-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .story-section .chart-heading {
+    display: block;
+  }
+
+  .badge {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 8px;
   }
 }
