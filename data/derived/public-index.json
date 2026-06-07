@@ -59,6 +59,15 @@
       "status": "real-derived",
       "source_dataset": "data/derived/platform-coverage-summary.csv",
       "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
+    },
+    {
+      "id": "source-coverage-summary",
+      "title": "Source coverage summary",
+      "path": "charts/exports/source-coverage-summary.svg",
+      "type": "svg",
+      "status": "real-derived",
+      "source_dataset": "data/derived/source-coverage-summary.csv",
+      "privacy_note": "Monthly file metadata counts only; raw CSV rows not copied."
     }
   ]
 }

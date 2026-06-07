@@ -48,6 +48,7 @@ derived_output:
   - data/derived/platform-coverage-summary.csv
   - data/derived/source-coverage-summary.csv
   - charts/exports/platform-coverage-summary.svg
+  - charts/exports/source-coverage-summary.svg
 privacy_review_status: reviewed
 raw_data_published: false
 notes: Derived from public upstream track-list field presence and repository file metadata. No names, IDs, channel IDs, URLs as rows, raw tracking rows, or individual sensitive time series are published.

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Source coverage summary</title>
+  <desc id="desc">Monthly aggregate count of public upstream snapshot files by file family. No raw CSV rows are copied.</desc>
+  <rect width="960" height="540" fill="#f8fafc"/>
+  <text x="72" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#172033">Source Coverage Summary</text>
+  <text x="72" y="106" font-family="Arial, sans-serif" font-size="15" fill="#526071">Monthly file metadata counts from public upstream repo. No raw rows copied.</text>
+  <line x1="72" y1="438" x2="800" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="72" y1="170" x2="72" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="94" y="358" width="72" height="80" fill="#2f6f73"/>
+  <rect x="94" y="310" width="72" height="48" fill="#d08c3f"/>
+  <rect x="94" y="266" width="72" height="44" fill="#8b5cf6"/>
+  <rect x="94" y="170" width="72" height="96" fill="#64748b"/>
+  <rect x="184" y="355" width="72" height="83" fill="#2f6f73"/>
+  <rect x="184" y="305" width="72" height="50" fill="#d08c3f"/>
+  <rect x="184" y="269" width="72" height="36" fill="#8b5cf6"/>
+  <rect x="184" y="170" width="72" height="99" fill="#64748b"/>
+  <rect x="274" y="355" width="72" height="83" fill="#2f6f73"/>
+  <rect x="274" y="305" width="72" height="50" fill="#d08c3f"/>
+  <rect x="274" y="270" width="72" height="35" fill="#8b5cf6"/>
+  <rect x="274" y="170" width="72" height="100" fill="#64748b"/>
+  <rect x="364" y="363" width="72" height="75" fill="#2f6f73"/>
+  <rect x="364" y="319" width="72" height="44" fill="#d08c3f"/>
+  <rect x="364" y="260" width="72" height="59" fill="#8b5cf6"/>
+  <rect x="364" y="171" width="72" height="89" fill="#64748b"/>
+  <rect x="454" y="355" width="72" height="83" fill="#2f6f73"/>
+  <rect x="454" y="305" width="72" height="50" fill="#d08c3f"/>
+  <rect x="454" y="270" width="72" height="35" fill="#8b5cf6"/>
+  <rect x="454" y="170" width="72" height="100" fill="#64748b"/>
+  <rect x="544" y="358" width="72" height="80" fill="#2f6f73"/>
+  <rect x="544" y="310" width="72" height="48" fill="#d08c3f"/>
+  <rect x="544" y="266" width="72" height="44" fill="#8b5cf6"/>
+  <rect x="544" y="170" width="72" height="96" fill="#64748b"/>
+  <rect x="634" y="355" width="72" height="83" fill="#2f6f73"/>
+  <rect x="634" y="306" width="72" height="49" fill="#d08c3f"/>
+  <rect x="634" y="269" width="72" height="37" fill="#8b5cf6"/>
+  <rect x="634" y="170" width="72" height="99" fill="#64748b"/>
+  <rect x="724" y="421" width="72" height="17" fill="#2f6f73"/>
+  <rect x="724" y="411" width="72" height="10" fill="#d08c3f"/>
+  <rect x="724" y="369" width="72" height="42" fill="#8b5cf6"/>
+  <rect x="724" y="350" width="72" height="19" fill="#64748b"/>
+  <text x="130" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2025-11</text>
+  <text x="220" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2025-12</text>
+  <text x="310" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-01</text>
+  <text x="400" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-02</text>
+  <text x="490" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-03</text>
+  <text x="580" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-04</text>
+  <text x="670" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-05</text>
+  <text x="760" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-06</text>
+  <text x="130" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="220" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="310" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="400" y="161" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="490" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="580" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="670" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
+  <text x="760" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">330</text>
+  <rect x="820" y="158" width="14" height="14" fill="#2f6f73"/>
+  <text x="842" y="170" font-family="Arial, sans-serif" font-size="13" fill="#172033">basic-data</text>
+  <rect x="820" y="186" width="14" height="14" fill="#d08c3f"/>
+  <text x="842" y="198" font-family="Arial, sans-serif" font-size="13" fill="#172033">youtube-livestreams</text>
+  <rect x="820" y="214" width="14" height="14" fill="#8b5cf6"/>
+  <text x="842" y="226" font-family="Arial, sans-serif" font-size="13" fill="#172033">twitch-livestreams</text>
+  <rect x="820" y="242" width="14" height="14" fill="#64748b"/>
+  <text x="842" y="254" font-family="Arial, sans-serif" font-size="13" fill="#172033">other</text>
+  <text x="72" y="506" font-family="Arial, sans-serif" font-size="13" fill="#64748b">Source: TaiwanVtuberData/TaiwanVtuberTrackingData repository metadata.</text>
+</svg>

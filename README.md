@@ -60,6 +60,9 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 - `data/derived/source-coverage-summary.csv`: 真實上游 repo 檔案中繼資料衍生的來源覆蓋摘要。
 - `charts/exports/sample-content-category-share.svg`: 由假資料產出的示範圖表。
 - `charts/exports/platform-coverage-summary.svg`: 由真實聚合資料產出的平台覆蓋圖表。
+- `charts/exports/source-coverage-summary.svg`: 由公開 repo 檔案中繼資料產出的來源覆蓋圖表。
+
+公開指標說明請見 [docs/public-metrics-catalog.md](docs/public-metrics-catalog.md)。
 
 ## Local Checks
 
@@ -71,6 +74,8 @@ python scripts/generate_sample_charts.py
 ```
 
 `validate_public_data.py` 會檢查公開 CSV 是否缺少 `source_url` / `last_verified`，並擋下禁止欄位。
+
+真實 derived data 的更新政策請見 [docs/refresh-policy.md](docs/refresh-policy.md)。CI 不會直接抓 live upstream，以避免高頻上游更新造成不穩定。
 
 ## 與順揚宮網站的關係
 

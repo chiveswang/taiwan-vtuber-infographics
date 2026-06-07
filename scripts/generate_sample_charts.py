@@ -12,6 +12,8 @@ INPUT = ROOT / "data" / "derived" / "aggregate-summary.csv"
 OUTPUT = ROOT / "charts" / "exports" / "sample-content-category-share.svg"
 PLATFORM_INPUT = ROOT / "data" / "derived" / "platform-coverage-summary.csv"
 PLATFORM_OUTPUT = ROOT / "charts" / "exports" / "platform-coverage-summary.svg"
+SOURCE_INPUT = ROOT / "data" / "derived" / "source-coverage-summary.csv"
+SOURCE_OUTPUT = ROOT / "charts" / "exports" / "source-coverage-summary.svg"
 
 COLORS = {
     "music": "#2f6f73",
@@ -130,6 +132,80 @@ def build_platform_svg(rows: list[dict[str, str]]) -> str:
     )
 
 
+def build_source_coverage_svg(rows: list[dict[str, str]]) -> str:
+    periods = sorted({row["aggregate_period"] for row in rows})
+    families = ["basic-data", "youtube-livestreams", "twitch-livestreams", "other"]
+    colors = {
+        "basic-data": "#2f6f73",
+        "youtube-livestreams": "#d08c3f",
+        "twitch-livestreams": "#8b5cf6",
+        "other": "#64748b",
+    }
+    counts = {
+        (row["aggregate_period"], row["source_category"]): int(row["aggregate_count"])
+        for row in rows
+    }
+    totals = {
+        period: sum(counts.get((period, family), 0) for family in families)
+        for period in periods
+    }
+    max_total = max(totals.values())
+    baseline = 438
+    max_height = 268
+    chart_left = 94
+    chart_width = 700
+    gap = 18
+    bar_width = max(28, round((chart_width - gap * (len(periods) - 1)) / len(periods)))
+
+    bars: list[str] = []
+    labels: list[str] = []
+    totals_text: list[str] = []
+    for index, period in enumerate(periods):
+        x = chart_left + index * (bar_width + gap)
+        current_y = baseline
+        for family in families:
+            count = counts.get((period, family), 0)
+            if count == 0:
+                continue
+            height = round((count / max_total) * max_height)
+            y = current_y - height
+            bars.append(f'  <rect x="{x}" y="{y}" width="{bar_width}" height="{height}" fill="{colors[family]}"/>')
+            current_y = y
+        center = x + bar_width / 2
+        labels.append(f'  <text x="{center:.0f}" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">{period}</text>')
+        totals_text.append(f'  <text x="{center:.0f}" y="{current_y - 10}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">{totals[period]}</text>')
+
+    legend: list[str] = []
+    for index, family in enumerate(families):
+        y = 170 + index * 28
+        legend.extend(
+            [
+                f'  <rect x="820" y="{y - 12}" width="14" height="14" fill="{colors[family]}"/>',
+                f'  <text x="842" y="{y}" font-family="Arial, sans-serif" font-size="13" fill="#172033">{family}</text>',
+            ]
+        )
+
+    return "\n".join(
+        [
+            '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">',
+            '  <title id="title">Source coverage summary</title>',
+            '  <desc id="desc">Monthly aggregate count of public upstream snapshot files by file family. No raw CSV rows are copied.</desc>',
+            '  <rect width="960" height="540" fill="#f8fafc"/>',
+            '  <text x="72" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#172033">Source Coverage Summary</text>',
+            '  <text x="72" y="106" font-family="Arial, sans-serif" font-size="15" fill="#526071">Monthly file metadata counts from public upstream repo. No raw rows copied.</text>',
+            '  <line x1="72" y1="438" x2="800" y2="438" stroke="#cbd5e1" stroke-width="2"/>',
+            '  <line x1="72" y1="170" x2="72" y2="438" stroke="#cbd5e1" stroke-width="2"/>',
+            *bars,
+            *labels,
+            *totals_text,
+            *legend,
+            '  <text x="72" y="506" font-family="Arial, sans-serif" font-size="13" fill="#64748b">Source: TaiwanVtuberData/TaiwanVtuberTrackingData repository metadata.</text>',
+            "</svg>",
+            "",
+        ]
+    )
+
+
 def main() -> int:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(build_svg(load_rows()), encoding="utf-8")
@@ -137,9 +213,15 @@ def main() -> int:
         with PLATFORM_INPUT.open("r", encoding="utf-8-sig", newline="") as handle:
             platform_rows = list(csv.DictReader(handle))
         PLATFORM_OUTPUT.write_text(build_platform_svg(platform_rows), encoding="utf-8")
+    if SOURCE_INPUT.exists():
+        with SOURCE_INPUT.open("r", encoding="utf-8-sig", newline="") as handle:
+            source_rows = list(csv.DictReader(handle))
+        SOURCE_OUTPUT.write_text(build_source_coverage_svg(source_rows), encoding="utf-8")
     print(f"Wrote {OUTPUT.relative_to(ROOT)}")
     if PLATFORM_OUTPUT.exists():
         print(f"Wrote {PLATFORM_OUTPUT.relative_to(ROOT)}")
+    if SOURCE_OUTPUT.exists():
+        print(f"Wrote {SOURCE_OUTPUT.relative_to(ROOT)}")
     return 0
 
 
