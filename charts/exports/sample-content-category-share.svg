@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Sample content category share chart</title>
+  <desc id="desc">A sample aggregate-only bar chart using fake demo data for Taiwan VTuber infographic planning.</desc>
+  <rect width="960" height="540" fill="#f8fafc"/>
+  <text x="72" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#172033">Sample Content Category Share</text>
+  <text x="72" y="106" font-family="Arial, sans-serif" font-size="15" fill="#526071">Fake aggregate demo data. Not real tracking data.</text>
+  <line x1="72" y1="438" x2="840" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="72" y1="170" x2="72" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="126" y="260" width="112" height="178" rx="4" fill="#2f6f73"/>
+  <rect x="300" y="170" width="112" height="268" rx="4" fill="#d08c3f"/>
+  <rect x="474" y="304" width="112" height="134" rx="4" fill="#6b7280"/>
+  <rect x="648" y="348" width="112" height="90" rx="4" fill="#8b5cf6"/>
+  <text x="182" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">music</text>
+  <text x="356" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">game</text>
+  <text x="530" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">talk</text>
+  <text x="704" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">collab</text>
+  <text x="182" y="246" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">12</text>
+  <text x="356" y="156" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">18</text>
+  <text x="530" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">9</text>
+  <text x="704" y="334" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">6</text>
+  <text x="72" y="506" font-family="Arial, sans-serif" font-size="13" fill="#64748b">Source: sample schema only. Last verified: 2026-06-07.</text>
+</svg>

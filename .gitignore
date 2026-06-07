@@ -1,0 +1,14 @@
+.DS_Store
+Thumbs.db
+
+work/
+outputs/
+
+*.log
+*.tmp
+*.bak
+
+# Do not commit raw or private tracking data.
+data/raw/
+data/private/
+data/intermediate/

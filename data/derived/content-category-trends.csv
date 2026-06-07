@@ -1,0 +1,10 @@
+aggregate_period,content_category,aggregate_count,source_url,last_verified,notes_for_methodology
+2026-03,music,8,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-03,game,13,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-03,talk,7,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-04,music,10,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-04,game,15,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-04,talk,8,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-05,music,12,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-05,game,18,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
+2026-05,talk,9,https://example.com/source,2026-06-07,Sample aggregate row only; not real data
