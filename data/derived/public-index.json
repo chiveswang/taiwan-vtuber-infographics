@@ -39,6 +39,24 @@
       "status": "real-derived",
       "last_verified": "2026-06-07",
       "privacy_note": "Derived from public repository file metadata only; raw CSV rows not copied."
+    },
+    {
+      "id": "public-status-summary",
+      "title": "Public status summary",
+      "path": "data/derived/public-status-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published."
+    },
+    {
+      "id": "quarterly-ecosystem-coverage",
+      "title": "Quarterly ecosystem coverage",
+      "path": "data/derived/quarterly-ecosystem-coverage.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied."
     }
   ],
   "charts": [
@@ -68,6 +86,24 @@
       "status": "real-derived",
       "source_dataset": "data/derived/source-coverage-summary.csv",
       "privacy_note": "Monthly file metadata counts only; raw CSV rows not copied."
+    },
+    {
+      "id": "public-status-summary",
+      "title": "Public status summary",
+      "path": "charts/exports/public-status-summary.svg",
+      "type": "svg",
+      "status": "real-derived",
+      "source_dataset": "data/derived/public-status-summary.csv",
+      "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published."
+    },
+    {
+      "id": "quarterly-ecosystem-coverage",
+      "title": "Quarterly ecosystem coverage",
+      "path": "charts/exports/quarterly-ecosystem-coverage.svg",
+      "type": "svg",
+      "status": "real-derived",
+      "source_dataset": "data/derived/quarterly-ecosystem-coverage.csv",
+      "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied."
     }
   ]
 }

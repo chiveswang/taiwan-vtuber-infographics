@@ -58,9 +58,13 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 - `data/derived/content-category-trends.csv`: 假資料趨勢範例。
 - `data/derived/platform-coverage-summary.csv`: 真實上游資料衍生的平台覆蓋聚合摘要，不含名稱、ID 或原始列。
 - `data/derived/source-coverage-summary.csv`: 真實上游 repo 檔案中繼資料衍生的來源覆蓋摘要。
+- `data/derived/public-status-summary.csv`: 真實上游 `Activity` 標籤的聚合摘要，不是即時狀態。
+- `data/derived/quarterly-ecosystem-coverage.csv`: 來源覆蓋資料的季度聚合摘要。
 - `charts/exports/sample-content-category-share.svg`: 由假資料產出的示範圖表。
 - `charts/exports/platform-coverage-summary.svg`: 由真實聚合資料產出的平台覆蓋圖表。
 - `charts/exports/source-coverage-summary.svg`: 由公開 repo 檔案中繼資料產出的來源覆蓋圖表。
+- `charts/exports/public-status-summary.svg`: 由上游公開狀態標籤聚合產出的狀態摘要圖表。
+- `charts/exports/quarterly-ecosystem-coverage.svg`: 由來源覆蓋資料產出的季度覆蓋圖表。
 
 公開指標說明請見 [docs/public-metrics-catalog.md](docs/public-metrics-catalog.md)。
 

@@ -37,7 +37,7 @@
   <rect x="724" y="421" width="72" height="17" fill="#2f6f73"/>
   <rect x="724" y="411" width="72" height="10" fill="#d08c3f"/>
   <rect x="724" y="369" width="72" height="42" fill="#8b5cf6"/>
-  <rect x="724" y="350" width="72" height="19" fill="#64748b"/>
+  <rect x="724" y="349" width="72" height="20" fill="#64748b"/>
   <text x="130" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2025-11</text>
   <text x="220" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2025-12</text>
   <text x="310" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#172033">2026-01</text>
@@ -53,7 +53,7 @@
   <text x="490" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
   <text x="580" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
   <text x="670" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">1000</text>
-  <text x="760" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">330</text>
+  <text x="760" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#172033">333</text>
   <rect x="820" y="158" width="14" height="14" fill="#2f6f73"/>
   <text x="842" y="170" font-family="Arial, sans-serif" font-size="13" fill="#172033">basic-data</text>
   <rect x="820" y="186" width="14" height="14" fill="#d08c3f"/>

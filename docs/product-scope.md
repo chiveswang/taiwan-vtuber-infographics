@@ -130,6 +130,8 @@
 
 Status: started. First real aggregate outputs are published without names, IDs, raw rows, or individual timelines.
 
+Additional status: quarterly source coverage is published as aggregate repository metadata only.
+
 ### Batch 2: Monthly Aggregate Activity Categories
 
 資料產品：

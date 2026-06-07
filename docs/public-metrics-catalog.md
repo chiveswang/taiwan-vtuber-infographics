@@ -42,6 +42,43 @@ This does not answer:
 - Stream timing behavior.
 - Any creator-level trend.
 
+### Public Status Summary
+
+- Dataset: `data/derived/public-status-summary.csv`
+- Chart: `charts/exports/public-status-summary.svg`
+- Status: `real-derived`
+- Source: `TaiwanVtuberData/TaiwanVtuberTrackingData`
+- Method: aggregate upstream `Activity` labels.
+- Privacy note: this is not real-time status and does not publish names, IDs, or raw rows.
+
+This answers:
+
+- How many upstream entries are labeled active, preparing, graduated, or unknown?
+
+This does not answer:
+
+- Which individual VTuber has which status.
+- Whether any status changed recently.
+- Any real-time activity condition.
+
+### Quarterly Ecosystem Coverage
+
+- Dataset: `data/derived/quarterly-ecosystem-coverage.csv`
+- Chart: `charts/exports/quarterly-ecosystem-coverage.svg`
+- Status: `real-derived`
+- Source: public GitHub repository file metadata.
+- Method: quarter-level aggregate of monthly source snapshot metadata.
+- Privacy note: no raw CSV rows are copied.
+
+This answers:
+
+- How much public source material exists by quarter?
+
+This does not answer:
+
+- Individual activity volume.
+- Creator-level growth or popularity.
+
 ## Sample Metrics
 
 ### Sample Content Category Share
@@ -54,34 +91,6 @@ This does not answer:
 This remains in the repo only to demonstrate schema and chart generation.
 
 ## Candidate Next Metrics
-
-### Quarterly Ecosystem Coverage
-
-Potential dataset:
-
-- `data/derived/quarterly-ecosystem-coverage.csv`
-
-Potential method:
-
-- aggregate source coverage and platform coverage into quarter-level summaries.
-
-Risk level:
-
-- low, if no individual rows are published.
-
-### Public Status Summary
-
-Potential dataset:
-
-- `data/derived/public-status-summary.csv`
-
-Potential method:
-
-- aggregate `Activity`, `Debut Date`, and `Graduation Date` categories only after normalization and sample-size review.
-
-Risk level:
-
-- medium. Needs careful labeling to avoid implying individual monitoring.
 
 ### Content Category Summary
 

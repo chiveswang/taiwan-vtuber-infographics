@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Public Status Summary</title>
+  <desc id="desc">Aggregate status category chart derived from upstream public Activity labels.</desc>
+  <rect width="960" height="540" fill="#f8fafc"/>
+  <text x="72" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#172033">Public Status Summary</text>
+  <text x="72" y="106" font-family="Arial, sans-serif" font-size="15" fill="#526071">Aggregate of upstream Activity labels. Not real-time status.</text>
+  <line x1="72" y1="438" x2="840" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="72" y1="170" x2="72" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="96" y="170" width="112" height="268" rx="4" fill="#2f6f73"/>
+  <rect x="266" y="409" width="112" height="29" rx="4" fill="#d08c3f"/>
+  <rect x="436" y="427" width="112" height="11" rx="4" fill="#8b5cf6"/>
+  <rect x="606" y="437" width="112" height="1" rx="4" fill="#64748b"/>
+  <text x="152" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#172033">active</text>
+  <text x="322" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#172033">graduated</text>
+  <text x="492" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#172033">preparing</text>
+  <text x="662" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#172033">unknown</text>
+  <text x="152" y="156" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">3923</text>
+  <text x="322" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">426</text>
+  <text x="492" y="413" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">156</text>
+  <text x="662" y="423" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">10</text>
+  <text x="72" y="506" font-family="Arial, sans-serif" font-size="13" fill="#64748b">No names, IDs, raw rows, or individual timelines are published.</text>
+</svg>

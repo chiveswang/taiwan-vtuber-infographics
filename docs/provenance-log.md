@@ -47,9 +47,13 @@ source_snapshot_date: 2026-06-07
 derived_output:
   - data/derived/platform-coverage-summary.csv
   - data/derived/source-coverage-summary.csv
+  - data/derived/public-status-summary.csv
+  - data/derived/quarterly-ecosystem-coverage.csv
   - charts/exports/platform-coverage-summary.svg
   - charts/exports/source-coverage-summary.svg
+  - charts/exports/public-status-summary.svg
+  - charts/exports/quarterly-ecosystem-coverage.svg
 privacy_review_status: reviewed
 raw_data_published: false
-notes: Derived from public upstream track-list field presence and repository file metadata. No names, IDs, channel IDs, URLs as rows, raw tracking rows, or individual sensitive time series are published.
+notes: Derived from public upstream track-list field presence, aggregate Activity labels, and repository file metadata. No names, IDs, channel IDs, URLs as rows, raw tracking rows, or individual sensitive time series are published.
 ```

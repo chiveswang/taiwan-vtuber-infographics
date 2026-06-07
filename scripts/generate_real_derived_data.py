@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+import subprocess
 from collections import Counter
 from datetime import date
 from pathlib import Path
@@ -15,12 +16,26 @@ from urllib.request import urlopen
 ROOT = Path(__file__).resolve().parents[1]
 DERIVED = ROOT / "data" / "derived"
 REPO_API = "https://api.github.com/repos/TaiwanVtuberData/TaiwanVtuberTrackingData/contents"
+REPO_API_PATH = "repos/TaiwanVtuberData/TaiwanVtuberTrackingData/contents"
 TRACK_LIST_URL = "https://raw.githubusercontent.com/TaiwanVtuberData/TaiwanVtuberTrackingData/master/DATA/TW_VTUBER_TRACK_LIST.csv"
 SOURCE_PROJECT = "TaiwanVtuberData/TaiwanVtuberTrackingData"
 LAST_VERIFIED = date.today().isoformat()
 
 
 def fetch_json(url: str) -> object:
+    if url.startswith(REPO_API):
+        path = REPO_API_PATH + url.removeprefix(REPO_API)
+        try:
+            result = subprocess.run(
+                ["gh", "api", path],
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+            )
+            return json.loads(result.stdout)
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            pass
     with urlopen(url) as response:
         return json.loads(response.read().decode("utf-8"))
 
@@ -81,6 +96,46 @@ def generate_platform_coverage() -> None:
     )
 
 
+def generate_public_status_summary() -> None:
+    rows = fetch_csv(TRACK_LIST_URL)
+    counts: Counter[str] = Counter()
+    for row in rows:
+        status = (row.get("Activity") or "unknown").strip().lower() or "unknown"
+        counts[status] += 1
+
+    output_rows = [
+        {
+            "aggregate_period": LAST_VERIFIED[:7],
+            "public_status_category": category,
+            "aggregate_count": count,
+            "source_project": SOURCE_PROJECT,
+            "source_url": TRACK_LIST_URL,
+            "last_verified": LAST_VERIFIED,
+            "notes_for_methodology": "Aggregate of upstream Activity labels; not real-time status and no names, IDs, or raw rows published.",
+        }
+        for category, count in sorted(counts.items())
+    ]
+    write_csv(
+        DERIVED / "public-status-summary.csv",
+        [
+            "aggregate_period",
+            "public_status_category",
+            "aggregate_count",
+            "source_project",
+            "source_url",
+            "last_verified",
+            "notes_for_methodology",
+        ],
+        output_rows,
+    )
+
+
+def quarter_for_period(period: str) -> str:
+    year, month = period.split("-")
+    quarter = (int(month) - 1) // 3 + 1
+    return f"{year}-Q{quarter}"
+
+
 def generate_source_coverage() -> None:
     root_items = fetch_json(REPO_API)
     month_names = sorted(
@@ -134,10 +189,40 @@ def generate_source_coverage() -> None:
         ],
         rows,
     )
+    quarterly_counts: Counter[tuple[str, str]] = Counter()
+    for row in rows:
+        quarterly_counts[(quarter_for_period(str(row["aggregate_period"])), str(row["source_category"]))] += int(row["aggregate_count"])
+
+    quarterly_rows = [
+        {
+            "aggregate_period": quarter,
+            "source_project": SOURCE_PROJECT,
+            "source_category": category,
+            "aggregate_count": count,
+            "source_url": f"https://github.com/{SOURCE_PROJECT}",
+            "last_verified": LAST_VERIFIED,
+            "notes_for_methodology": "Quarter-level aggregate from public repository file metadata; raw CSV rows not copied.",
+        }
+        for (quarter, category), count in sorted(quarterly_counts.items())
+    ]
+    write_csv(
+        DERIVED / "quarterly-ecosystem-coverage.csv",
+        [
+            "aggregate_period",
+            "source_project",
+            "source_category",
+            "aggregate_count",
+            "source_url",
+            "last_verified",
+            "notes_for_methodology",
+        ],
+        quarterly_rows,
+    )
 
 
 def main() -> int:
     generate_platform_coverage()
+    generate_public_status_summary()
     generate_source_coverage()
     print("Wrote real aggregate derived data.")
     return 0
