@@ -85,6 +85,8 @@ python scripts/generate_sample_charts.py
 
 這個 repo 負責公開資料、方法論與圖表素材的建立。順揚宮網站上的遊樂場工具頁面應只引用這裡已通過 privacy review 的公開資料或圖表，不直接讀取任何原始 tracking data。
 
+靜態資訊界面原型位於 [site/](site/)，可作為順揚宮網站遊樂場頁面的移植參考。
+
 ## Privacy
 
 請見 [PRIVACY.md](PRIVACY.md)。

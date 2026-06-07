@@ -21,6 +21,7 @@
 - `data/derived/public-index.json`
 - `data/derived/*.csv`
 - `charts/exports/*.svg`
+- `site/` 可作為順揚宮遊樂場頁面的靜態原型來源。
 
 ## 建議頁面模組
 
@@ -29,6 +30,16 @@
 - platform / content mix。
 - source and privacy notes。
 - correction / removal link。
+
+## 目前可移植模組
+
+- hero privacy boundary。
+- aggregate summary cards。
+- platform coverage chart。
+- public status summary chart。
+- quarterly ecosystem coverage chart。
+- source coverage chart。
+- public outputs table。
 
 ## 不建議
 

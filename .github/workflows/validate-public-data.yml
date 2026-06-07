@@ -27,5 +27,8 @@ jobs:
       - name: Regenerate sample charts
         run: python scripts/generate_sample_charts.py
 
+      - name: Validate static dashboard
+        run: python scripts/validate_static_site.py
+
       - name: Ensure generated files are committed
         run: git diff --exit-code

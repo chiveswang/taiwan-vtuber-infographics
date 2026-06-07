@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Taiwan VTuber Infographics</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Privacy-conscious aggregate view</p>
+          <h1 id="page-title">Taiwan VTuber Ecosystem</h1>
+          <p class="lede">
+            Public, aggregate-only infographics derived from upstream open data.
+            No raw tracking rows, names, IDs, or individual timelines are shown here.
+          </p>
+        </div>
+        <div class="hero-panel" aria-label="Privacy boundary">
+          <span class="status-dot"></span>
+          <div>
+            <strong>Privacy boundary active</strong>
+            <p>Only derived counts and public source metadata are loaded.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Aggregate summary">
+        <article class="metric">
+          <span class="metric-label">Public entries</span>
+          <strong id="total-entries">-</strong>
+          <span class="metric-note">from platform coverage totals</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Active label share</span>
+          <strong id="active-share">-</strong>
+          <span class="metric-note">aggregate upstream Activity labels</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Published datasets</span>
+          <strong id="dataset-count">-</strong>
+          <span class="metric-note">listed in public-index.json</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Chart assets</span>
+          <strong id="chart-count">-</strong>
+          <span class="metric-note">website-ready SVG exports</span>
+        </article>
+      </section>
+
+      <section class="insight-band" aria-labelledby="insight-title">
+        <div>
+          <h2 id="insight-title">What this view is for</h2>
+          <p>
+            This dashboard explains ecosystem-scale patterns: platform coverage,
+            public status labels, source density, and quarter-level coverage.
+          </p>
+        </div>
+        <ul class="boundary-list" aria-label="Excluded data">
+          <li>No individual rankings</li>
+          <li>No real-time tracking</li>
+          <li>No identity speculation</li>
+        </ul>
+      </section>
+
+      <section class="chart-grid" aria-label="Charts">
+        <article class="chart-card wide">
+          <div class="chart-heading">
+            <div>
+              <span class="section-kicker">Platform mix</span>
+              <h2>Platform Coverage</h2>
+            </div>
+            <span class="badge">real-derived</span>
+          </div>
+          <img src="../charts/exports/platform-coverage-summary.svg" alt="Aggregate platform coverage chart" />
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-heading">
+            <div>
+              <span class="section-kicker">Public labels</span>
+              <h2>Status Summary</h2>
+            </div>
+            <span class="badge">not real-time</span>
+          </div>
+          <img src="../charts/exports/public-status-summary.svg" alt="Aggregate public status label chart" />
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-heading">
+            <div>
+              <span class="section-kicker">Quarterly view</span>
+              <h2>Ecosystem Coverage</h2>
+            </div>
+            <span class="badge">metadata</span>
+          </div>
+          <img src="../charts/exports/quarterly-ecosystem-coverage.svg" alt="Quarterly source coverage chart" />
+        </article>
+
+        <article class="chart-card wide">
+          <div class="chart-heading">
+            <div>
+              <span class="section-kicker">Source density</span>
+              <h2>Source Coverage</h2>
+            </div>
+            <span class="badge">repo metadata</span>
+          </div>
+          <img src="../charts/exports/source-coverage-summary.svg" alt="Monthly source coverage chart" />
+        </article>
+      </section>
+
+      <section class="data-table-section" aria-labelledby="datasets-title">
+        <div class="chart-heading">
+          <div>
+            <span class="section-kicker">Public index</span>
+            <h2 id="datasets-title">Website-ready outputs</h2>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Output</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Privacy note</th>
+              </tr>
+            </thead>
+            <tbody id="outputs-table">
+              <tr>
+                <td colspan="4">Loading public outputs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -42,3 +42,11 @@ python scripts/generate_real_derived_data.py
 此腳本從公開上游 repo 讀取資料，但只輸出低風險 aggregate CSV；不保存 raw upstream rows。
 
 注意：上游 repo 可能高頻更新，因此 CI 不會自動執行此腳本。更新真實 derived data 時，請在本地執行、檢查差異，再 commit。
+
+## Validate Static Dashboard
+
+```bash
+python scripts/validate_static_site.py
+```
+
+此檢查確認 `site/` 參照的資料、圖表、CSS 與 JS 檔案存在。
