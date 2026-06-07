@@ -922,7 +922,7 @@ function locate(o){ // o={s,v,f,r,rh,nat,d,label}
     rows.push({l:"成長動能",v:(g.mom_3m>=0?"+":"")+pctText(g.mom_3m),d:"動能贏過 "+(pctile(LON.mom,g.mom_3m)??"—")+"%"});
     rows.push({l:"年化成長",v:pctText(g.cagr_yr),d:"贏過 "+(pctile(LON.cagr,g.cagr_yr)??"—")+"%"});
     rows.push({l:"距高點回落",v:"-"+pctText(g.drawdown),d:g.peak_m?"高點 "+g.peak_m:""});
-    if(o.d&&g.subs_now){const m=monthsBetween(new Date(o.d),new Date(GROW.months[GROW.months.length-1]+"-01"));const i=Math.max(0,Math.min(GROW.lifecycle.x.length-1,m));const med=GROW.lifecycle.median[i];const sample=GROW.lifecycle.n_by_x[i];if(med){rows.push({l:"生命週期定位",v:`出道 ${m} 個月`,d:`${g.subs_now>med?"領先":"落後"}典型台V（你 ${fmt(g.subs_now)} / 中位 ${fmt(Math.round(med))}）${sample<20?"・同期樣本少":""}`});}}
+    if(o.d&&g.subs_now){const m=monthsBetween(new Date(o.d),new Date(GROW.months[GROW.months.length-1]+"-01"));const i=Math.max(0,Math.min(GROW.lifecycle.x.length-1,m));const med=GROW.lifecycle.median[i],p75=GROW.lifecycle.p75[i],sample=GROW.lifecycle.n_by_x[i],base=(g.series||[]).find(v=>v);const own=base?g.subs_now/base:null;if(med&&own){const band=own>=p75?"前段":own>=med?"領先典型":"低於典型";rows.push({l:"生命週期定位",v:`出道 ${m} 個月`,d:`${band}：目前 ${fmt(g.subs_now)} 訂閱，約為初期 ${fmt(base)} 的 ${own.toFixed(1)} 倍；同月齡典型約 ${med.toFixed(1)} 倍${p75?`、前段約 ${p75.toFixed(1)} 倍`:""}。${sample<20?"同期樣本少，僅供參考":`同期樣本 ${fmt(sample)} 筆`}`});}}
     const nt=o.s<1000?1000:o.s<10000?10000:o.s<100000?100000:null;const gm=g.mom_3m!=null?Math.pow(1+g.mom_3m,1/3)-1:null;
     if(nt)rows.push({l:"升級預測",v:gm>0?`約 ${Math.ceil(Math.log(nt/o.s)/Math.log(1+gm))} 個月破 ${fmt(nt)}`:"近期成長停滯",d:"線性外推，僅參考"});
   }
