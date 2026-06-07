@@ -40,6 +40,7 @@
 - quarterly ecosystem coverage chart。
 - source coverage chart。
 - public outputs table。
+- safe metric switcher that only changes aggregate summaries.
 
 ## 不建議
 

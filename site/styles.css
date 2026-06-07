@@ -78,7 +78,9 @@ h2 {
 
 .hero-panel,
 .metric,
+.explorer,
 .chart-card,
+.trend-grid article,
 .data-table-section {
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
@@ -177,6 +179,101 @@ h2 {
   gap: 18px;
 }
 
+.explorer {
+  margin: 0 0 18px;
+  padding: 18px;
+}
+
+.segmented {
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(98px, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #eef2f1;
+}
+
+.segment {
+  min-height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--slate);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.segment.is-active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(23, 32, 51, 0.08);
+}
+
+.explorer-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.explorer h3 {
+  margin: 0;
+  font-size: 1.55rem;
+}
+
+.explorer p {
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.mini-grid,
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mini-grid article {
+  min-height: 118px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.mini-grid span,
+.trend-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.mini-grid strong,
+.trend-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.trend-grid {
+  margin-top: 18px;
+}
+
+.trend-grid article {
+  padding: 18px;
+}
+
+.trend-grid p {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .chart-card {
   padding: 18px;
   overflow: hidden;
@@ -239,6 +336,9 @@ td {
 @media (max-width: 880px) {
   .hero,
   .insight-band,
+  .explorer-body,
+  .mini-grid,
+  .trend-grid,
   .chart-grid,
   .summary-grid {
     grid-template-columns: 1fr;
@@ -255,5 +355,10 @@ td {
 
   .chart-card.wide {
     grid-column: auto;
+  }
+
+  .segmented {
+    display: grid;
+    width: 100%;
   }
 }

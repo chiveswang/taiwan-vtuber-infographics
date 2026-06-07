@@ -64,6 +64,49 @@
         </ul>
       </section>
 
+      <section class="explorer" aria-labelledby="explorer-title">
+        <div class="chart-heading">
+          <div>
+            <span class="section-kicker">Explore safely</span>
+            <h2 id="explorer-title">Aggregate trend reader</h2>
+          </div>
+          <span class="badge">no raw rows</span>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Metric view">
+          <button class="segment is-active" type="button" data-view="platform" role="tab" aria-selected="true">
+            Platform
+          </button>
+          <button class="segment" type="button" data-view="status" role="tab" aria-selected="false">
+            Status
+          </button>
+          <button class="segment" type="button" data-view="coverage" role="tab" aria-selected="false">
+            Coverage
+          </button>
+        </div>
+        <div class="explorer-body">
+          <div>
+            <h3 id="explorer-heading">Platform field coverage</h3>
+            <p id="explorer-copy">
+              Counts entries by whether upstream public fields include YouTube, Twitch, both, or neither.
+            </p>
+          </div>
+          <div class="mini-grid" aria-label="Selected aggregate facts">
+            <article>
+              <span id="fact-a-label">Largest category</span>
+              <strong id="fact-a">-</strong>
+            </article>
+            <article>
+              <span id="fact-b-label">Smallest category</span>
+              <strong id="fact-b">-</strong>
+            </article>
+            <article>
+              <span id="fact-c-label">Privacy rule</span>
+              <strong id="fact-c">Aggregate only</strong>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="chart-grid" aria-label="Charts">
         <article class="chart-card wide">
           <div class="chart-heading">
@@ -107,6 +150,24 @@
             <span class="badge">repo metadata</span>
           </div>
           <img src="../charts/exports/source-coverage-summary.svg" alt="Monthly source coverage chart" />
+        </article>
+      </section>
+
+      <section class="trend-grid" aria-label="Trend notes">
+        <article>
+          <span class="section-kicker">Latest source month</span>
+          <strong id="latest-source-month">-</strong>
+          <p id="latest-source-note">Calculated from public source metadata.</p>
+        </article>
+        <article>
+          <span class="section-kicker">Densest quarter</span>
+          <strong id="densest-quarter">-</strong>
+          <p id="densest-quarter-note">Quarter-level metadata count, not creator activity.</p>
+        </article>
+        <article>
+          <span class="section-kicker">Public safety gate</span>
+          <strong>Pass</strong>
+          <p>No names, IDs, raw rows, individual timelines, or rankings are loaded.</p>
         </article>
       </section>
 
