@@ -39,6 +39,25 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 - `charts/`: 圖表說明、輸出圖檔與 notebook 區。
 - `scripts/`: 驗證與圖表產生腳本的預留位置。
 
+## Public Outputs
+
+目前 repo 只含 sample aggregate data，不含真實追蹤資料。
+
+- `data/derived/public-index.json`: 給網站或工具讀取的公開素材索引。
+- `data/derived/aggregate-summary.csv`: 假資料聚合摘要。
+- `data/derived/content-category-trends.csv`: 假資料趨勢範例。
+- `charts/exports/sample-content-category-share.svg`: 由假資料產出的示範圖表。
+
+## Local Checks
+
+```bash
+python scripts/validate_public_data.py
+python scripts/validate_public_index.py
+python scripts/generate_sample_charts.py
+```
+
+`validate_public_data.py` 會檢查公開 CSV 是否缺少 `source_url` / `last_verified`，並擋下禁止欄位。
+
 ## 與順揚宮網站的關係
 
 這個 repo 負責公開資料、方法論與圖表素材的建立。順揚宮網站上的遊樂場工具頁面應只引用這裡已通過 privacy review 的公開資料或圖表，不直接讀取任何原始 tracking data。
@@ -49,4 +68,4 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 
 ## License
 
-授權方式待定。若資料、程式碼、圖表需要不同授權，應在正式公開前拆開說明。
+程式碼使用 MIT License。資料與圖表授權仍需在正式公開前確認，請見 [LICENSE-DATA.md](LICENSE-DATA.md)。

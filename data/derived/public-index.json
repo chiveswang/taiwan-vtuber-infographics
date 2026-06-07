@@ -1,0 +1,36 @@
+{
+  "project": "taiwan-vtuber-infographics",
+  "generated_at": "2026-06-07",
+  "privacy_scope": "aggregate-only sample data; no raw tracking data",
+  "datasets": [
+    {
+      "id": "aggregate-summary",
+      "title": "Sample aggregate summary",
+      "path": "data/derived/aggregate-summary.csv",
+      "type": "csv",
+      "status": "sample",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Fake aggregate demo data only."
+    },
+    {
+      "id": "content-category-trends",
+      "title": "Sample content category trends",
+      "path": "data/derived/content-category-trends.csv",
+      "type": "csv",
+      "status": "sample",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Fake aggregate demo data only."
+    }
+  ],
+  "charts": [
+    {
+      "id": "sample-content-category-share",
+      "title": "Sample content category share",
+      "path": "charts/exports/sample-content-category-share.svg",
+      "type": "svg",
+      "status": "sample",
+      "source_dataset": "data/derived/aggregate-summary.csv",
+      "privacy_note": "Fake aggregate demo chart only."
+    }
+  ]
+}

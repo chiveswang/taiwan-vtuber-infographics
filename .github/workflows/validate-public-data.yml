@@ -1,0 +1,31 @@
+name: Validate public data
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-public-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate derived CSV files
+        run: python scripts/validate_public_data.py
+
+      - name: Validate public asset index
+        run: python scripts/validate_public_index.py
+
+      - name: Regenerate sample charts
+        run: python scripts/generate_sample_charts.py
+
+      - name: Ensure generated files are committed
+        run: git diff --exit-code

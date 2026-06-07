@@ -16,3 +16,19 @@ python scripts/validate_public_data.py
 ```
 
 目前檢查範圍是 `data/derived/**/*.csv`。
+
+## Generate Sample Charts
+
+```bash
+python scripts/generate_sample_charts.py
+```
+
+目前只從 fake aggregate demo data 產生 `charts/exports/sample-content-category-share.svg`。
+
+## Validate Public Index
+
+```bash
+python scripts/validate_public_index.py
+```
+
+此檢查確認 `data/derived/public-index.json` 的必要欄位存在，且索引內的檔案路徑可找到。

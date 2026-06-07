@@ -15,6 +15,12 @@
 - 預先輸出的 PNG / SVG 圖表。
 - 版本化的 release artifact。
 
+## 建議讀取入口
+
+- `data/derived/public-index.json`
+- `data/derived/*.csv`
+- `charts/exports/*.svg`
+
 ## 不建議
 
 - 在網站端即時查詢原始追蹤資料。
