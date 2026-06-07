@@ -77,6 +77,16 @@ def pick(conn):
     return list(conn.execute(q))
 
 
+def pick_basic_monthly(conn):
+    q = """WITH m AS (
+             SELECT repo, substr(snapshot_at,1,7) ym, snapshot_at, path,
+                    ROW_NUMBER() OVER(PARTITION BY substr(snapshot_at,1,7) ORDER BY snapshot_at DESC) rn
+             FROM snapshots WHERE kind = 'basic-data'
+           )
+           SELECT ym, repo, snapshot_at, path FROM m WHERE rn = 1 ORDER BY ym"""
+    return list(conn.execute(q))
+
+
 def m_basic(rows):
     subs = [ii(r.get("YouTube Subscriber Count")) for r in rows]
     tw = [ii(r.get("Twitch Follower Count")) for r in rows]
@@ -84,6 +94,10 @@ def m_basic(rows):
     pos = [s for s in subs if s and s>0]
     total = sum(pos)
     top10 = sum(sorted(pos, reverse=True)[:10])
+    views = [ii(r.get("YouTube View Count")) for r in rows]
+    vpos = [v for v in views if v and v > 0]
+    vtotal = sum(vpos)
+    vtop10 = sum(sorted(vpos, reverse=True)[:10])
     tiers = {"mega":0,"large":0,"mid":0,"small":0}
     for s in pos:
         if s>=100000: tiers["mega"]+=1
@@ -97,11 +111,69 @@ def m_basic(rows):
         "yt_subs_median": median(subs),
         "yt_subs_p90": pctl(subs,0.9),
         "yt_top10_share": round(top10/total,4) if total else None,
+        "yt_view_top10_share": round(vtop10/vtotal,4) if vtotal else None,
         "yt_tier_mega": tiers["mega"], "yt_tier_large": tiers["large"],
         "yt_tier_mid": tiers["mid"], "yt_tier_small": tiers["small"],
         "twitch_channels_with_followers": sum(1 for v in tw if v and v>0),
         "twitch_followers_total": sum(v or 0 for v in tw),
         "twitch_followers_median": median(tw),
+    }
+
+
+def concentration():
+    track = rd(show("current","DATA/TW_VTUBER_TRACK_LIST.csv"))
+    names = {
+        (r.get("ID") or "").strip(): (r.get("Display Name") or r.get("Twitch Channel Name") or "").strip()
+        for r in track
+        if (r.get("ID") or "").strip() and not (r.get("ID") or "").startswith("##")
+    }
+    conn = sqlite3.connect(DB_PATH)
+    try: picks = pick_basic_monthly(conn)
+    finally: conn.close()
+
+    monthly = []
+    for ym, repo, snap, path in picks:
+        rows = rd(show(repo, path))
+        channels = {}
+        for r in rows:
+            vid = (r.get("VTuber ID") or "").strip()
+            if not vid: continue
+            channels[vid] = {
+                "id": vid,
+                "n": names.get(vid) or vid,
+                "s": ii(r.get("YouTube Subscriber Count")),
+                "v": ii(r.get("YouTube View Count")),
+            }
+        monthly.append({"label": ym, "at": snap, "channels": channels})
+
+    def select(granularity):
+        if granularity == "month":
+            return monthly
+        if granularity == "quarter":
+            return [m for m in monthly if m["label"][5:7] in ("03","06","09","12")]
+        years = {}
+        for m in monthly:
+            years[m["label"][:4]] = m
+        return [years[y] for y in sorted(years)]
+
+    def build(records):
+        out, prev = [], None
+        for rec in records:
+            rows = []
+            for vid, cur in rec["channels"].items():
+                old = prev["channels"].get(vid, {}) if prev else {}
+                ps = None if prev is None or cur.get("s") is None or old.get("s") is None else max(0, cur["s"] - old["s"])
+                pv = None if prev is None or cur.get("v") is None or old.get("v") is None else max(0, cur["v"] - old["v"])
+                rows.append({"id": vid, "n": cur["n"], "s": cur.get("s"), "v": cur.get("v"), "ps": ps, "pv": pv})
+            out.append({"label": rec["label"], "at": rec["at"], "channels": rows})
+            prev = rec
+        return out
+
+    return {
+        "note": "累計觀看使用該時間截點的 YouTube View Count；期間觀看數使用本期累計觀看減前一期累計觀看，負向資料校正以 0 處理。",
+        "month": build(select("month")),
+        "quarter": build(select("quarter")),
+        "year": build(select("year")),
     }
 
 
@@ -197,8 +269,7 @@ def cohort():
             "activity": dict(comp_act.most_common()),
             "group_split": dict(comp_grp),
         },
-        "note": "Cohort reconstructed from the current track-list debut/graduation dates; "
-                "channels fully removed from the list are not captured (survivorship).",
+        "note": "出道世代由目前追蹤名單的出道/畢業日期重建；已從名單完全移除的頻道不會被捕捉（含倖存者偏差）。",
     }
 
 
@@ -231,6 +302,7 @@ def main():
                 "(which sampled month-first).",
         "activity": series,
         "cohort": cohort(),
+        "concentration": concentration(),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT/"quarterly_full.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
