@@ -56,11 +56,15 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 - `data/derived/public-index.json`: 給網站或工具讀取的公開素材索引。
 - `data/derived/aggregate-summary.csv`: 假資料聚合摘要。
 - `data/derived/content-category-trends.csv`: 假資料趨勢範例。
+- `data/derived/platform-coverage-summary.csv`: 真實上游資料衍生的平台覆蓋聚合摘要，不含名稱、ID 或原始列。
+- `data/derived/source-coverage-summary.csv`: 真實上游 repo 檔案中繼資料衍生的來源覆蓋摘要。
 - `charts/exports/sample-content-category-share.svg`: 由假資料產出的示範圖表。
+- `charts/exports/platform-coverage-summary.svg`: 由真實聚合資料產出的平台覆蓋圖表。
 
 ## Local Checks
 
 ```bash
+python scripts/generate_real_derived_data.py
 python scripts/validate_public_data.py
 python scripts/validate_public_index.py
 python scripts/generate_sample_charts.py

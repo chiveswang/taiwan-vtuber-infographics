@@ -58,6 +58,8 @@
 - `last_verified`
 - `notes_for_methodology`
 
+Status: approved for first real aggregate batch.
+
 ### `monthly-content-category-summary.csv`
 
 目的：呈現內容類型趨勢。
@@ -70,6 +72,8 @@
 - `source_project`
 - `last_verified`
 - `notes_for_methodology`
+
+Status: blocked until safe content-category derivation is defined without publishing titles, URLs, or individual timelines.
 
 ## Intake Gate
 

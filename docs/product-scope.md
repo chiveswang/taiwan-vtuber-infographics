@@ -128,6 +128,8 @@
 - 不需要個人時間序列。
 - 適合驗證來源標記與 public-index 流程。
 
+Status: started. First real aggregate outputs are published without names, IDs, raw rows, or individual timelines.
+
 ### Batch 2: Monthly Aggregate Activity Categories
 
 資料產品：

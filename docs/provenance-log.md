@@ -34,3 +34,21 @@ privacy_review_status: source-review-only
 raw_data_published: false
 notes: GitHub metadata and LICENSE files report The Unlicense. README files did not list additional attribution requirements. This repo should still cite upstream repositories for provenance when real derived aggregate outputs are added.
 ```
+
+## 2026-06-07 First Real Aggregate Derived Outputs
+
+```yaml
+source_project:
+  - TaiwanVtuberData/TaiwanVtuberTrackingData
+source_project_visibility: public
+source_project_url:
+  - https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData
+source_snapshot_date: 2026-06-07
+derived_output:
+  - data/derived/platform-coverage-summary.csv
+  - data/derived/source-coverage-summary.csv
+  - charts/exports/platform-coverage-summary.svg
+privacy_review_status: reviewed
+raw_data_published: false
+notes: Derived from public upstream track-list field presence and repository file metadata. No names, IDs, channel IDs, URLs as rows, raw tracking rows, or individual sensitive time series are published.
+```

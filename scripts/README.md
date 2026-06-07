@@ -32,3 +32,11 @@ python scripts/validate_public_index.py
 ```
 
 此檢查確認 `data/derived/public-index.json` 的必要欄位存在，且索引內的檔案路徑可找到。
+
+## Generate Real Aggregate Derived Data
+
+```bash
+python scripts/generate_real_derived_data.py
+```
+
+此腳本從公開上游 repo 讀取資料，但只輸出低風險 aggregate CSV；不保存 raw upstream rows。

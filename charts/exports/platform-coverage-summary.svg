@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Taiwan VTuber platform coverage summary</title>
+  <desc id="desc">Aggregate platform field coverage derived from public upstream data. No names, IDs, or raw rows are published.</desc>
+  <rect width="960" height="540" fill="#f8fafc"/>
+  <text x="72" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#172033">Platform Coverage Summary</text>
+  <text x="72" y="106" font-family="Arial, sans-serif" font-size="15" fill="#526071">Aggregate field presence only. No names, IDs, or individual rows.</text>
+  <line x1="72" y1="438" x2="840" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="72" y1="170" x2="72" y2="438" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="96" y="435" width="112" height="3" rx="4" fill="#64748b"/>
+  <rect x="266" y="419" width="112" height="19" rx="4" fill="#8b5cf6"/>
+  <rect x="436" y="220" width="112" height="218" rx="4" fill="#2f6f73"/>
+  <rect x="606" y="170" width="112" height="268" rx="4" fill="#d08c3f"/>
+  <text x="152" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">no id</text>
+  <text x="322" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">twitch</text>
+  <text x="492" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">both</text>
+  <text x="662" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#172033">youtube</text>
+  <text x="152" y="421" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">27</text>
+  <text x="322" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">170</text>
+  <text x="492" y="206" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">1937</text>
+  <text x="662" y="156" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">2381</text>
+  <text x="72" y="506" font-family="Arial, sans-serif" font-size="13" fill="#64748b">Source: TaiwanVtuberData/TaiwanVtuberTrackingData. Aggregate derived output.</text>
+</svg>

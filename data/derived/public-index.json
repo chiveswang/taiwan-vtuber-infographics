@@ -21,6 +21,24 @@
       "status": "sample",
       "last_verified": "2026-06-07",
       "privacy_note": "Fake aggregate demo data only."
+    },
+    {
+      "id": "platform-coverage-summary",
+      "title": "Platform coverage summary",
+      "path": "data/derived/platform-coverage-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
+    },
+    {
+      "id": "source-coverage-summary",
+      "title": "Source coverage summary",
+      "path": "data/derived/source-coverage-summary.csv",
+      "type": "csv",
+      "status": "real-derived",
+      "last_verified": "2026-06-07",
+      "privacy_note": "Derived from public repository file metadata only; raw CSV rows not copied."
     }
   ],
   "charts": [
@@ -32,6 +50,15 @@
       "status": "sample",
       "source_dataset": "data/derived/aggregate-summary.csv",
       "privacy_note": "Fake aggregate demo chart only."
+    },
+    {
+      "id": "platform-coverage-summary",
+      "title": "Platform coverage summary",
+      "path": "charts/exports/platform-coverage-summary.svg",
+      "type": "svg",
+      "status": "real-derived",
+      "source_dataset": "data/derived/platform-coverage-summary.csv",
+      "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
     }
   ]
 }
