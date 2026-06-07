@@ -676,9 +676,11 @@ let DIRDATA = DIR;
 let curChannel = null;
 let faqChannel = null;
 let gwChannel = null;
+let ARR_CACHE = null;
 function arrs(){const C=DIRDATA.channels;const g=f=>C.map(f).filter(v=>v!=null&&isFinite(v)).sort((a,b)=>a-b);
   return {s:g(c=>c.s),v:g(c=>c.v),f:g(c=>c.f),r:g(c=>c.r),rh:g(c=>c.rh),
     eff:g(c=>(c.v!=null&&c.s)?c.v/c.s:null),reff:g(c=>(c.r!=null&&c.s)?c.r/c.s:null)};}
+function arrsCached(){return ARR_CACHE||(ARR_CACHE=arrs());}
 function pctile(arr,v){if(v==null||!arr.length)return null;let lo=0,hi=arr.length;
   while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<v)lo=m+1;else hi=m;}return +(lo/arr.length*100).toFixed(1);}
 function upperBound(arr,v){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<=v)lo=m+1;else hi=m;}return lo;}
@@ -702,7 +704,7 @@ function locLong(o){return o&&o.id?GROW.channels[o.id]:null;}
 function locStream(o){return o&&o.id?STM.yt.channels[o.id]||(o.y?STM.yt.channels[o.y]:null):null;}
 function locEvents(o){return o&&o.id&&EVT.channels[o.id]?EVT.channels[o.id].events||[]:[];}
 function metricVector(c){
-  const A=arrs(),g=locLong(c),st=locStream(c),eff=(c.v!=null&&c.s)?c.v/c.s:null,reff=(c.r!=null&&c.s)?c.r/c.s:null;
+  const A=arrsCached(),g=locLong(c),st=locStream(c),eff=(c.v!=null&&c.s)?c.v/c.s:null,reff=(c.r!=null&&c.s)?c.r/c.s:null;
   return {訂閱:pctile(A.s,c.s),累計觀看:pctile(A.v,c.v),Twitch:pctile(A.f,c.f),黏著:pctile(A.reff,reff),
     爆紅:pctile(A.rh,c.rh),動能:g?pctile(LON.mom,g.mom_3m):null,規律:st?pctile(LON.reg,regularity(st)):null,
     熱度:pctile(A.r,c.r),曝光:pctile(A.eff,eff)};
@@ -902,7 +904,7 @@ function buildGrowth(inclP){
 }
 
 function locate(o){ // o={s,v,f,r,rh,nat,d,label}
-  const A=arrs(),rows=[];
+  const A=arrsCached(),rows=[];
   const g=locLong(o), st=locStream(o);
   renderHealth(o);
   if(o.label)rows.push({l:"頻道",v:o.label,d:DIRDATA.snapshot+" 數據"});
@@ -941,7 +943,7 @@ function locate(o){ // o={s,v,f,r,rh,nat,d,label}
 
 function drawLocCharts(o){
   Object.values(Chart.instances).filter(c=>c.canvas&&["lc1","lc2","lc3","lc4"].includes(c.canvas.id)).forEach(c=>c.destroy());
-  const A=arrs(),desc=[...A.s].sort((a,b)=>b-a),subs=o.s;
+  const A=arrsCached(),desc=[...A.s].sort((a,b)=>b-a),subs=o.s;
   // lc1 rank curve
   const ds=[{label:"全體台V訂閱(高→低)",data:desc.map((v,i)=>({x:i+1,y:v})),borderColor:"#4aa8ff",borderWidth:1,pointRadius:0,showLine:true}];
   if(subs!=null){let r=desc.findIndex(v=>v<=subs);if(r<0)r=desc.length;ds.push({label:"你",data:[{x:r+1,y:subs}],borderColor:"#37d99a",backgroundColor:"#37d99a",pointRadius:8,pointStyle:"rectRot",showLine:false});}
@@ -1011,9 +1013,9 @@ async function refreshLive(st){
       if(s==null&&f==null)return;
       chans.push({n:(t["Display Name"]||"").trim(),a:(t["Alias Names"]||"").trim(),y:(t["Youtube Channel ID"]||"").trim(),t:(t["Twitch Channel Name"]||"").trim(),nat:(t["Nationality"]||"").trim(),g:(t["Group Name"]||"").trim()?1:0,d:(t["Debut Date"]||"").trim(),s,v,f,r:r?rmcol(r):null,rh:r?rhcol(r):null});});
     if(!chans.length)throw new Error("解析為空");
-    DIRDATA={snapshot:ym+" 即時("+bd.replace("basic-data_","").replace(".csv","")+")",source:DIR.source,channels:chans};
+    DIRDATA={snapshot:ym+" 即時("+bd.replace("basic-data_","").replace(".csv","")+")",source:DIR.source,channels:chans};ARR_CACHE=null;
     st.textContent="已更新："+bd;return true;
-  }catch(e){st.textContent="即時抓取失敗("+e.message+")，已退回內建 "+DIR.snapshot+"。";DIRDATA=DIR;return false;}
+  }catch(e){st.textContent="即時抓取失敗("+e.message+")，已退回內建 "+DIR.snapshot+"。";DIRDATA=DIR;ARR_CACHE=null;return false;}
 }
 function readNumO(){return {s:num((document.getElementById("numSubs")||{}).value),
   f:num((document.getElementById("numFol")||{}).value),r:num((document.getElementById("numRec")||{}).value),
