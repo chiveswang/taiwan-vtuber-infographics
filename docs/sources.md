@@ -51,3 +51,14 @@ notes: Aggregate-only output. No raw tracking data, private identity information
 ## First Public Repo State
 
 目前 repo 只包含 sample aggregate data。尚未導入任何真實上游資料。
+
+## Upstream Repositories Reviewed
+
+以下上游 repo 是公開資料來源候選。它們目前採用 The Unlicense，README 未列出額外 attribution 要求。雖然授權沒有強制要求標記，本專案仍應主動標記來源 repo，作為 provenance 與公開透明度的一部分。
+
+- current: [TaiwanVtuberData/TaiwanVtuberTrackingData](https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData)
+- archive: [TaiwanVtuberData/TaiwanVTuberTrackingDataArchive](https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive)
+
+Public attribution wording:
+
+> Aggregate outputs may be derived from public upstream repositories maintained under TaiwanVtuberData, including the current and archive Taiwan VTuber tracking data repositories. This project republishes only privacy-reviewed aggregate or derived outputs, not raw tracking data.

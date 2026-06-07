@@ -37,6 +37,8 @@ Taiwan VTuber Infographics 是一個 privacy-conscious infographic / data visual
 
 來源標記方式請見 [docs/sources.md](docs/sources.md) 與 [docs/provenance-log.md](docs/provenance-log.md)。
 
+已檢查的公開上游來源候選包含 `TaiwanVtuberData/TaiwanVtuberTrackingData` 與 `TaiwanVtuberData/TaiwanVTuberTrackingDataArchive`。兩者目前採用 The Unlicense；本專案仍會主動標記來源作為 provenance。
+
 ## Repo 結構
 
 - `docs/`: 方法論、資料邊界、資料來源與修正移除流程。
