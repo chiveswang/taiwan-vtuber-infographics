@@ -23,6 +23,12 @@
 - `charts/exports/*.svg`
 - `site/` 可作為順揚宮遊樂場頁面的靜態原型來源。
 
+GitHub Pages path:
+
+```text
+https://chiveswang.github.io/taiwan-vtuber-infographics/site/
+```
+
 ## 建議頁面模組
 
 - ecosystem snapshot。

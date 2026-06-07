@@ -4,6 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Taiwan VTuber Infographics</title>
+    <meta
+      name="description"
+      content="Privacy-conscious aggregate data visualization dashboard for Taiwan VTuber ecosystem trends."
+    />
+    <meta name="theme-color" content="#f7f8f3" />
+    <meta property="og:title" content="Taiwan VTuber Infographics" />
+    <meta
+      property="og:description"
+      content="Aggregate-only ecosystem charts. No raw tracking rows, individual timelines, or identity speculation."
+    />
+    <meta property="og:type" content="website" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -169,6 +180,33 @@
           <strong>Pass</strong>
           <p>No names, IDs, raw rows, individual timelines, or rankings are loaded.</p>
         </article>
+      </section>
+
+      <section class="story-section" aria-labelledby="story-title">
+        <div class="chart-heading">
+          <div>
+            <span class="section-kicker">Readable takeaways</span>
+            <h2 id="story-title">Industry signals without personal tracking</h2>
+          </div>
+          <span class="badge">aggregate interpretation</span>
+        </div>
+        <div class="story-grid">
+          <article>
+            <span>Platform signal</span>
+            <strong id="platform-signal">-</strong>
+            <p id="platform-signal-note">Derived from public field coverage.</p>
+          </article>
+          <article>
+            <span>Status signal</span>
+            <strong id="status-signal">-</strong>
+            <p id="status-signal-note">Derived from upstream Activity labels.</p>
+          </article>
+          <article>
+            <span>Source signal</span>
+            <strong id="source-signal">-</strong>
+            <p id="source-signal-note">Derived from repository metadata.</p>
+          </article>
+        </div>
       </section>
 
       <section class="data-table-section" aria-labelledby="datasets-title">

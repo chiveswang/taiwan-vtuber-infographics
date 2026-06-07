@@ -87,6 +87,12 @@ python scripts/generate_sample_charts.py
 
 靜態資訊界面原型位於 [site/](site/)，可作為順揚宮網站遊樂場頁面的移植參考。
 
+GitHub Pages workflow 會部署公開 dashboard 至：
+
+```text
+https://chiveswang.github.io/taiwan-vtuber-infographics/site/
+```
+
 ## Privacy
 
 請見 [PRIVACY.md](PRIVACY.md)。

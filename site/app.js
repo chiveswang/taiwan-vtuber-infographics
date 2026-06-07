@@ -45,12 +45,22 @@ function formatNumber(value) {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+function displayLabel(value) {
+  const labels = {
+    no_public_platform_id: "no public id",
+    twitch_only: "twitch only",
+    youtube_and_twitch: "both platforms",
+    youtube_only: "youtube only",
+  };
+  return labels[value] ?? value;
+}
+
 function maxByCount(rows, key) {
-  return [...rows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0][key];
+  return displayLabel([...rows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0][key]);
 }
 
 function minByCount(rows, key) {
-  return [...rows].sort((a, b) => Number(a.aggregate_count) - Number(b.aggregate_count))[0][key];
+  return displayLabel([...rows].sort((a, b) => Number(a.aggregate_count) - Number(b.aggregate_count))[0][key]);
 }
 
 function sumRows(rows) {
@@ -108,6 +118,10 @@ function setExplorer(view, datasets) {
   }
 }
 
+function percent(part, total) {
+  return `${Math.round((part / total) * 100)}%`;
+}
+
 async function init() {
   const indexResponse = await fetch("../data/derived/public-index.json");
   const publicIndex = await indexResponse.json();
@@ -145,6 +159,26 @@ async function init() {
   document.querySelector("#densest-quarter-note").textContent = `${formatNumber(
     quarterTotals[0][1],
   )} source metadata records in the quarter-level aggregate.`;
+
+  const leadingPlatform = [...platformRows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0];
+  const leadingStatus = [...statusRows].sort((a, b) => Number(b.aggregate_count) - Number(a.aggregate_count))[0];
+  const latestSourceTotal = sourceRows
+    .filter((row) => row.aggregate_period === latestSourceMonth)
+    .reduce((sum, row) => sum + Number(row.aggregate_count), 0);
+
+  document.querySelector("#platform-signal").textContent = `${displayLabel(leadingPlatform.platform_category)} leads`;
+  document.querySelector("#platform-signal-note").textContent = `${formatNumber(
+    leadingPlatform.aggregate_count,
+  )} entries, ${percent(Number(leadingPlatform.aggregate_count), totalEntries)} of the aggregate platform coverage total.`;
+  document.querySelector("#status-signal").textContent = `${leadingStatus.public_status_category} dominates`;
+  document.querySelector("#status-signal-note").textContent = `${percent(
+    Number(leadingStatus.aggregate_count),
+    statusTotal,
+  )} of upstream public Activity labels are in this category.`;
+  document.querySelector("#source-signal").textContent = `${latestSourceMonth} is current`;
+  document.querySelector("#source-signal-note").textContent = `${formatNumber(
+    latestSourceTotal,
+  )} source metadata records are available for the latest month in this public index.`;
 
   const datasets = { platformRows, statusRows, sourceRows };
   setExplorer("platform", datasets);

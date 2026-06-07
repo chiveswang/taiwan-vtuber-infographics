@@ -31,3 +31,9 @@ Then open:
 ```text
 http://localhost:8080/site/
 ```
+
+When GitHub Pages is enabled through the included workflow, the public dashboard path is:
+
+```text
+https://chiveswang.github.io/taiwan-vtuber-infographics/site/
+```

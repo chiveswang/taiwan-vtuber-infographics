@@ -81,6 +81,8 @@ h2 {
 .explorer,
 .chart-card,
 .trend-grid article,
+.story-section,
+.story-grid article,
 .data-table-section {
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
@@ -264,6 +266,43 @@ h2 {
   margin-top: 18px;
 }
 
+.story-section {
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.story-grid article {
+  padding: 18px;
+  box-shadow: none;
+}
+
+.story-grid span {
+  display: block;
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.story-grid strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.story-grid p {
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .trend-grid article {
   padding: 18px;
 }
@@ -339,6 +378,7 @@ td {
   .explorer-body,
   .mini-grid,
   .trend-grid,
+  .story-grid,
   .chart-grid,
   .summary-grid {
     grid-template-columns: 1fr;
