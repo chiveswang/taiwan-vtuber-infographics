@@ -69,6 +69,7 @@ section.on{display:block}
 .faq-badge{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
 .faq-green{background:rgba(55,217,154,.15);color:var(--green);border:1px solid var(--green)}
 .faq-amber{background:rgba(255,180,84,.15);color:var(--amber);border:1px solid var(--amber)}
+.faq-red{background:rgba(255,90,95,.15);color:var(--red);border:1px solid var(--red)}
 .faq-card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 16px;margin-bottom:12px}
 .faq-card h4{margin:0;font-size:14.5px}
 .faq-line{font-size:13px;color:#cfd6e6;margin:7px 0 0}
@@ -246,6 +247,17 @@ section.on{display:block}
   <details class="footer"><summary>資料說明與警語</summary>數字為自動從資料生成；追蹤名單含倖存者偏差。黏著度、事件淨增長、作息皆為估算指標或取樣統計。本資料源不含 SC 金流、即時同接、互動率、剪輯頻道。</details>
 </section>
 
+<section id="s_quality">
+  <div class="insight">公開報告前先看資料覆蓋率：哪些指標能支撐全體結論，哪些只適合當樣本觀察。這頁只用已內嵌資料即時計算，不重新抓資料。</div>
+  <div class="kpis" id="kpi_quality"></div>
+  <div class="grid">
+    <div class="card full"><h3>頻道欄位覆蓋率</h3><p class="desc">以定位資料中的 3,033 個頻道為母體；覆蓋率低的欄位不宜寫成全體結論</p><div class="box tall"><canvas id="dq1"></canvas></div></div>
+    <div class="card"><h3>縱貫資料覆蓋</h3><p class="desc">成長、事件、作息與雙棲資料可用頻道數</p><div class="box"><canvas id="dq2"></canvas></div></div>
+    <div class="card"><h3>開台樣本量</h3><p class="desc">已清洗去重並排除長時間待機室；Twitch 樣本遠小於 YouTube</p><div class="box"><canvas id="dq3"></canvas></div></div>
+    <div class="card full"><h3>公開敘事等級</h3><div id="qualityTable"></div></div>
+  </div>
+</section>
+
 <section id="s_locate">
   <div class="insight">輸入你的頻道（YouTube 頻道ID UCxxxx / Twitch 名稱 / 直接打名稱搜尋）或純數字，看你落在全體台V分布的哪個位置。預設用內建最新資料截點（__GEN__）；按「更新到最新」會直接從公開 GitHub 抓即時數據（不需金鑰，失敗會自動退回內建）。</div>
   <div class="locbar">
@@ -282,7 +294,7 @@ const EVT = __EVT__;
 const STM = __STM__;
 const XPLAT = __XPLAT__;
 const fmt = n => n==null?"—":n.toLocaleString("en-US");
-const C = {tracked:"#4aa8ff",active:"#37d99a",rate:"#ffb454",amber:"#ffb454",yt:"#ff5a5f",tw:"#a970ff",green:"#37d99a",
+const C = {tracked:"#4aa8ff",active:"#37d99a",rate:"#ffb454",amber:"#ffb454",yt:"#ff5a5f",tw:"#a970ff",purple:"#a970ff",green:"#37d99a",
   debut:"#37d99a",grad:"#ff5a5f",cum:"#7c5cff",blue:"#4aa8ff"};
 const BUCKETS=["game","chat","singing","shorts","asmr","collab","announcement","other"];
 const BCOL={game:"#4aa8ff",chat:"#37d99a",singing:"#ff7eb6",shorts:"#ffb454",asmr:"#a970ff",collab:"#2dd4bf",announcement:"#ff5a5f",other:"#5b6377"};
@@ -801,6 +813,51 @@ function buildReport(){
   repYear.onchange=render; repCopy.onclick=async()=>{await navigator.clipboard.writeText(reportBody.dataset.text||"");repStatus.textContent="已複製";}; render();
 }
 
+function buildQuality(){
+  const chans=DIRDATA.channels,total=chans.length,has=fn=>chans.filter(fn).length,pct=n=>total?+(n/total*100).toFixed(1):0;
+  const active=has(c=>c.ac==="Active"), grad=has(c=>c.ac==="Graduated");
+  const fields=[
+    ["Activity 狀態",has(c=>c.ac),"可用於排除畢業/非活動頻道"],
+    ["頭像",has(c=>c.img),"排行榜與定位卡可視化"],
+    ["YouTube 訂閱",has(c=>c.s!=null),"定位、級距、集中度的主母體"],
+    ["累計觀看",has(c=>c.v!=null),"曝光效率與累計觀看集中度"],
+    ["近期觀看",has(c=>c.r!=null),"黏著度、近期熱度 proxy"],
+    ["出道日",has(c=>c.d),"生命週期與同屆比較"],
+    ["Twitch 追隨",has(c=>c.f!=null),"雙棲與 Twitch 定位"],
+    ["團體名稱",has(c=>c.gn),"廠牌/團體聚合"],
+    ["內容分類",has(c=>c.cb&&Object.keys(c.cb).length),"單頻道內容傾向"],
+    ["最熱門影片",has(c=>c.tv),"單頻道熱門影片榜"]
+  ];
+  const blocks=[
+    ["成長軌跡",Object.keys(GROW.channels||{}).length,"月度訂閱/Twitch 追隨縱貫"],
+    ["事件吸粉",Object.keys(EVT.channels||{}).length,"標題事件後 14 天淨增長毛估"],
+    ["YT 開台作息",Object.keys((STM.yt||{}).channels||{}).length,"開台時間，不是同接"],
+    ["Twitch 開台作息",Object.keys((STM.tw||{}).channels||{}).length,"Twitch 樣本較少"],
+    ["雙棲比較",Object.keys(XPLAT.channels||{}).length,"目前為寬鬆雙棲定義"]
+  ];
+  const topVid=fields.find(x=>x[0]==="最熱門影片")[1], content=fields.find(x=>x[0]==="內容分類")[1], recent=fields.find(x=>x[0]==="近期觀看")[1];
+  kpis("kpi_quality",[
+    {l:"定位母體",v:fmt(total),d:`Active ${fmt(active)}・Graduated ${fmt(grad)}`},
+    {l:"近期觀看覆蓋",v:pct(recent)+"%",d:`${fmt(recent)} / ${fmt(total)} 頻道`},
+    {l:"內容分類覆蓋",v:pct(content)+"%",d:`${fmt(content)} / ${fmt(total)} 頻道`},
+    {l:"最熱門影片覆蓋",v:pct(topVid)+"%",d:`${fmt(topVid)} / ${fmt(total)} 頻道`}
+  ]);
+  const colors=fields.map(x=>pct(x[1])>=80?C.green:pct(x[1])>=50?C.blue:C.amber);
+  new Chart(dq1,{type:"bar",data:{labels:fields.map(x=>x[0]),datasets:[{label:"覆蓋率",data:fields.map(x=>pct(x[1])),backgroundColor:colors}]},options:opts({y:{min:0,max:100,ticks:{color:TICK,callback:v=>v+"%"},grid:{color:GRID}}})});
+  new Chart(dq2,{type:"bar",data:{labels:blocks.map(x=>x[0]),datasets:[{label:"可用頻道數",data:blocks.map(x=>x[1]),backgroundColor:[C.green,C.amber,C.blue,C.tw,C.purple]}]},options:opts()});
+  new Chart(dq3,{type:"bar",data:{labels:["YT 清洗後開台","YT 原始樣本","Twitch 清洗後開台"],datasets:[{label:"樣本數",data:[STM.yt.coverage.n_streams,STM.yt.coverage.raw_streams,STM.tw.coverage.n_streams],backgroundColor:[C.blue,C.blue+"66",C.tw]}]},options:opts()});
+  const grade=n=>n>=80?["可作全體結論","green"]:n>=50?["可作趨勢/分群結論","amber"]:["只適合樣本觀察","red"];
+  const rows=[
+    ["訂閱、累計觀看、級距、集中度",100,"可公開主述"],
+    ["出道年、生命週期、同屆比較",pct(fields.find(x=>x[0]==="出道日")[1]),"含倖存者偏差"],
+    ["近期熱度與黏著度",pct(recent),"VOD 觀看 proxy，非同接"],
+    ["Twitch / 雙棲",pct(fields.find(x=>x[0]==="Twitch 追隨")[1]),"雙棲定義仍偏寬，需分級"],
+    ["內容分類",pct(content),"適合說樣本趨勢，不宜當全體內容分布"],
+    ["最熱門影片",pct(topVid),"覆蓋低，公開時需標樣本榜"]
+  ];
+  document.getElementById("qualityTable").innerHTML=`<table class="table"><thead><tr><th>主題</th><th>覆蓋率</th><th>公開敘事等級</th><th>注意事項</th></tr></thead><tbody>${rows.map(r=>{const g=grade(r[1]);return `<tr><td>${r[0]}</td><td>${r[1].toFixed(1)}%</td><td><span class="faq-badge faq-${g[1]}">${g[0]}</span></td><td>${r[2]}</td></tr>`;}).join("")}</tbody></table><div class="footer">建議：覆蓋率低於 50% 的指標在報告中一律寫成「樣本」或「已抓到資料中」，不要寫成全體產業結論。</div>`;
+}
+
 function buildGrowth(inclP){
   const esc=s=>(s==null?"":String(s)).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   const pct=v=>v==null||!isFinite(v)?"—":(v*100).toFixed(1)+"%";
@@ -1036,7 +1093,7 @@ function buildLocate(){
   drawLocCharts({});
 }
 
-const TABS=[["s_locate","定位你自己",buildLocate],["s_rank","排行榜",buildRank],["s_agency","廠牌生態",buildAgency],["s_report","產業報告",buildReport],["s_overview","活躍總覽",buildOverview],["s_cohort","進出場動態",buildCohort],
+const TABS=[["s_locate","定位你自己",buildLocate],["s_rank","排行榜",buildRank],["s_agency","廠牌生態",buildAgency],["s_report","產業報告",buildReport],["s_quality","資料健康",buildQuality],["s_overview","活躍總覽",buildOverview],["s_cohort","進出場動態",buildCohort],
   ["s_conc","集中度與規模",buildConc],["s_pyr","訂閱級距金字塔",buildPyr],["s_content","內容與組成",buildContent],
   ["s_faq","常見問題",buildFaq],["s_growth","成長與生命週期",buildGrowth]];
 let curTab="s_overview";
