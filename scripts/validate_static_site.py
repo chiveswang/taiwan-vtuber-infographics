@@ -29,7 +29,6 @@ def main() -> int:
         ROOT / "data" / "derived" / "public-status-summary.csv",
         ROOT / "data" / "derived" / "activity-quarterly-summary.csv",
         ROOT / "data" / "derived" / "cohort-quarterly-summary.csv",
-        ROOT / "data" / "derived" / "content-category-quarterly-summary.csv",
     ]
     for path in required:
         if not path.exists():

@@ -1,7 +1,7 @@
 {
   "project": "taiwan-vtuber-infographics",
   "generated_at": "2026-06-07",
-  "privacy_scope": "aggregate-only sample data; no raw tracking data",
+  "privacy_scope": "aggregate-only sample and real-derived data; no raw tracking data",
   "source_project_policy": "Derived outputs may reference an upstream source project at the provenance level, but raw data and private source details are not published.",
   "privacy_rules": {
     "version": "1.0",
@@ -113,20 +113,6 @@
       "privacy_note": "All settled periods are combined into one bucket; positive count cells below 10 are suppressed.",
       "privacy_dimensions": [
         "aggregate_period"
-      ]
-    },
-    {
-      "id": "content-category-quarterly-summary",
-      "title": "Content category quarterly summary",
-      "path": "data/derived/content-category-quarterly-summary.csv",
-      "type": "csv",
-      "status": "real-derived",
-      "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level title-category aggregates only; cells below 10 are merged into other or omitted.",
-      "privacy_dimensions": [
-        "aggregate_period",
-        "content_scope",
-        "content_category"
       ]
     }
   ],

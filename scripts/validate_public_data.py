@@ -13,6 +13,7 @@ import shutil
 import stat
 from collections import Counter
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path, PurePath, PurePosixPath
 from typing import Mapping
 from urllib.parse import unquote
@@ -48,7 +49,6 @@ ALLOWED_CSV_FIELDS = {
     "aggregate_period",
     "category",
     "content_category",
-    "content_scope",
     "cumulative_active",
     "debuts",
     "debuts_group",
@@ -72,13 +72,10 @@ ALLOWED_CSV_FIELDS = {
     "source_category",
     "source_project",
     "source_url",
-    "topvid_view_max",
     "topvid_view_median",
     "tracked_channels",
     "tw_live_hosts",
-    "tw_live_streams",
     "yt_live_hosts",
-    "yt_live_streams",
     "yt_subs_median",
     "yt_subs_p90",
     "yt_tier_large",
@@ -92,7 +89,6 @@ PRIVACY_DIMENSION_FIELDS = {
     "aggregate_period",
     "category",
     "content_category",
-    "content_scope",
     "platform_category",
     "public_status_category",
     "source_category",
@@ -180,6 +176,13 @@ VALUE_PATTERNS = {
     ),
     "individual name label": re.compile(r"\b(?:creator|channel)[_-]?name\s*[:=]", re.I),
 }
+ALLOWED_HTML_DATA_ATTRIBUTES = {"data-tab"}
+JS_NAMED_ASSIGNMENT = re.compile(
+    r"""(?=(?:\b(?P<field>[A-Za-z_$][\w$]*)|"""
+    r"""["'](?P<quoted_field>[A-Za-z_$][\w$]*)["'])"""
+    r"\s*(?::|=(?!=))\s*"
+    r"(?P<value>[^,;\n}]+))"
+)
 
 
 def validate_rules(rules: object) -> list[str]:
@@ -284,6 +287,21 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
                         f"{label}: real-derived dataset requires unique non-empty "
                         "privacy_dimensions disclosure"
                     )
+
+    statuses = set()
+    for collection in ("datasets", "charts"):
+        items = index.get(collection)
+        if isinstance(items, list):
+            statuses.update(
+                item.get("status") for item in items if isinstance(item, dict)
+            )
+    scope = str(index.get("privacy_scope", "")).lower()
+    if {"sample", "real-derived"} <= statuses and not (
+        "sample" in scope and "real-derived" in scope
+    ):
+        errors.append(
+            "public-index.json: privacy_scope must disclose sample and real-derived data"
+        )
 
     for value, locations in _duplicates(ids).items():
         errors.append(
@@ -404,6 +422,68 @@ def _group_size_error(
     return []
 
 
+class _PublicHtmlParser(HTMLParser):
+    def __init__(self, path: PurePath):
+        super().__init__()
+        self.path = path
+        self.errors: list[str] = []
+
+    def handle_starttag(
+        self,
+        tag: str,
+        attrs: list[tuple[str, str | None]],
+    ) -> None:
+        for attribute, _ in attrs:
+            if (
+                attribute.startswith("data-")
+                and attribute not in ALLOWED_HTML_DATA_ATTRIBUTES
+            ) or attribute == "title" or (attribute == "name" and tag != "meta"):
+                self.errors.append(
+                    f"{self.path.as_posix()}: HTML attribute not in schema allowlist: "
+                    f"{attribute}"
+                )
+
+    handle_startendtag = handle_starttag
+
+
+def _validate_html(path: PurePath, text: str) -> list[str]:
+    parser = _PublicHtmlParser(path)
+    parser.feed(text)
+    return _scan_values(path, text) + parser.errors
+
+
+def _validate_javascript(
+    path: PurePath,
+    text: str,
+    minimum_group_size: int,
+) -> list[str]:
+    errors = _scan_values(path, text)
+    normalized = _normalize_escapes(text)
+    for match in JS_NAMED_ASSIGNMENT.finditer(normalized):
+        field = match.group("field") or match.group("quoted_field")
+        if not _is_group_size_field(field):
+            continue
+        raw_value = match.group("value").strip()
+        literal = re.fullmatch(
+            r"""(?:"([^"]*)"|'([^']*)'|(-?(?:\d+(?:\.\d+)?|\.\d+))|null)""",
+            raw_value,
+        )
+        if not literal:
+            errors.append(
+                f"{path.as_posix()}: cannot verify public JavaScript payload "
+                f"value for {field}"
+            )
+            continue
+        value = next(
+            (item for item in literal.groups() if item is not None),
+            "",
+        )
+        errors.extend(
+            _group_size_error(path, field, value, minimum_group_size)
+        )
+    return errors
+
+
 def _validate_csv(path: PurePath, text: str, minimum_group_size: int) -> list[str]:
     errors = []
     reader = csv.DictReader(io.StringIO(text))
@@ -509,7 +589,11 @@ def validate_text(path: PurePath, text: str, minimum_group_size: int) -> list[st
         return _validate_json(path, text, minimum_group_size)
     if suffix == ".svg":
         return _validate_svg(path, text)
-    if suffix in {".html", ".js", ".css"}:
+    if suffix == ".html":
+        return _validate_html(path, text)
+    if suffix == ".js":
+        return _validate_javascript(path, text, minimum_group_size)
+    if suffix == ".css":
         return _scan_values(path, text)
     return [f"{path.as_posix()}: unsupported public artifact type"]
 

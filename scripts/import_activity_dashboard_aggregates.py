@@ -69,12 +69,9 @@ def activity_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
         "yt_tier_large",
         "yt_tier_mid",
         "yt_tier_small",
-        "yt_live_streams",
         "yt_live_hosts",
-        "tw_live_streams",
         "tw_live_hosts",
         "topvid_view_median",
-        "topvid_view_max",
     ]
     count_fields = {
         "tracked_channels",
@@ -85,9 +82,7 @@ def activity_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
         "yt_tier_large",
         "yt_tier_mid",
         "yt_tier_small",
-        "yt_live_streams",
         "yt_live_hosts",
-        "tw_live_streams",
         "tw_live_hosts",
     }
     rows = []
@@ -148,41 +143,8 @@ def cohort_rows(coh: dict[str, object]) -> list[dict[str, object]]:
     ]
 
 
-def content_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
-    scopes = {
-        "topvid_buckets": "top_videos",
-        "yt_live_buckets": "youtube_livestreams",
-        "tw_live_buckets": "twitch_livestreams",
-    }
-    rows = []
-    for item in act:
-        if item.get("partial"):
-            continue
-        for source_key, scope in scopes.items():
-            buckets = item.get(source_key) or {}
-            public_buckets: dict[str, int] = {}
-            small_total = 0
-            for category, raw_count in buckets.items():
-                count = int(raw_count)
-                if 0 < count < 10:
-                    small_total += count
-                elif count >= 10:
-                    public_buckets[category] = count
-            if small_total:
-                merged_other = public_buckets.get("other", 0) + small_total
-                if merged_other >= 10:
-                    public_buckets["other"] = merged_other
-            for category, count in sorted(public_buckets.items()):
-                row = row_base(item)
-                row.update(
-                    {
-                        "content_scope": scope,
-                        "content_category": category,
-                        "aggregate_count": count,
-                    }
-                )
-                rows.append(row)
-    return rows
+def content_rows(_act: list[dict[str, object]]) -> list[dict[str, object]]:
+    return []
 
 
 def main() -> int:
@@ -214,12 +176,9 @@ def main() -> int:
             "yt_tier_large",
             "yt_tier_mid",
             "yt_tier_small",
-            "yt_live_streams",
             "yt_live_hosts",
-            "tw_live_streams",
             "tw_live_hosts",
             "topvid_view_median",
-            "topvid_view_max",
             "source_url",
             "last_verified",
         ],
@@ -240,19 +199,6 @@ def main() -> int:
             "debuts_other",
             "debuts_indie",
             "debuts_group",
-            "source_url",
-            "last_verified",
-        ],
-    )
-    write_csv(
-        OUT_DIR / "content-category-quarterly-summary.csv",
-        content_rows(act),
-        [
-            "aggregate_period",
-            "partial",
-            "content_scope",
-            "content_category",
-            "aggregate_count",
             "source_url",
             "last_verified",
         ],

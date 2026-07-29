@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path, PurePosixPath
@@ -109,7 +110,7 @@ class PublicDataGateTests(unittest.TestCase):
         self.assertEqual(0, public_count(0))
         self.assertEqual(10, public_count(10))
 
-    def test_importer_merges_small_content_categories_into_other(self) -> None:
+    def test_importer_does_not_publish_item_count_content_categories(self) -> None:
         rows = importer.content_rows(
             [
                 {
@@ -125,13 +126,30 @@ class PublicDataGateTests(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(
-            [("music", 12), ("other", 28)],
+        self.assertEqual([], rows)
+
+    def test_importer_omits_item_counts_and_exact_maximum(self) -> None:
+        row = importer.activity_rows(
             [
-                (row["content_category"], row["aggregate_count"])
-                for row in rows
-            ],
-        )
+                {
+                    "quarter": "2026-03",
+                    "partial": False,
+                    "yt_live_streams": 12,
+                    "yt_live_hosts": 10,
+                    "tw_live_streams": 14,
+                    "tw_live_hosts": 11,
+                    "topvid_view_max": 999999,
+                    "topvid_view_median": 1200,
+                }
+            ]
+        )[0]
+
+        self.assertNotIn("yt_live_streams", row)
+        self.assertEqual(10, row["yt_live_hosts"])
+        self.assertNotIn("tw_live_streams", row)
+        self.assertEqual(11, row["tw_live_hosts"])
+        self.assertNotIn("topvid_view_max", row)
+        self.assertEqual(1200, row["topvid_view_median"])
 
     def test_importer_coarsens_cohort_to_one_settled_bucket(self) -> None:
         rows = importer.cohort_rows(
@@ -215,6 +233,54 @@ class PublicDataGateTests(unittest.TestCase):
         for path, text in cases.items():
             with self.subTest(path=path):
                 self.assertTrue(validate_text(PurePosixPath(path), text, 10))
+
+    def test_web_artifacts_validate_named_payloads_and_html_attributes(self) -> None:
+        cases = {
+            "payload.js": "const aggregate_count = 3;",
+            "object-payload.js": 'const payload = {"aggregate_count": 3};',
+            "tooltip.html": "<div data-tooltip='Alice'>Aggregate</div>",
+        }
+        for path, text in cases.items():
+            with self.subTest(path=path):
+                errors = gate.validate_text(PurePosixPath(path), text, 10)
+                self.assertTrue(errors, path)
+
+    def test_suppressed_blank_is_null_in_site_numeric_conversion(self) -> None:
+        script = r"""
+const fs = require("fs");
+const vm = require("vm");
+const context = {
+  Chart: { defaults: { font: {} } },
+  document: {
+    querySelector: () => ({ innerHTML: "" }),
+    querySelectorAll: () => [],
+  },
+  fetch: async () => ({
+    json: async () => ({ datasets: [], charts: [] }),
+    text: async () => "aggregate_period,partial\n",
+  }),
+  Intl,
+};
+vm.createContext(context);
+vm.runInContext(fs.readFileSync(process.argv[1], "utf8"), context);
+process.stdout.write(JSON.stringify({
+  blank: context.numberValue({ value: "" }, "value"),
+  formattedBlank: context.formatNumber(context.numberValue({ value: "" }, "value")),
+  zero: context.numberValue({ value: "0" }, "value"),
+  ten: context.numberValue({ value: "10" }, "value"),
+}));
+"""
+        result = subprocess.run(
+            ["node", "-e", script, str(ROOT / "site" / "app.js")],
+            check=True,
+            capture_output=True,
+            encoding="utf-8",
+        )
+
+        self.assertEqual(
+            {"blank": None, "formattedBlank": "—", "zero": 0, "ten": 10},
+            json.loads(result.stdout),
+        )
 
     def test_missing_minimum_group_size_fails_closed(self) -> None:
         validate_rules = getattr(gate, "validate_rules", lambda _rules: [])
@@ -428,6 +494,44 @@ class PublicDataGateTests(unittest.TestCase):
             10,
         )
         self.assertTrue(any("field not in schema allowlist: name" in error for error in errors), errors)
+
+    def test_rejects_item_count_and_exact_maximum_csv_fields(self) -> None:
+        text = (
+            "aggregate_period,content_scope,content_category,aggregate_count,"
+            "yt_live_streams,tw_live_streams,topvid_view_max,source_url,last_verified\n"
+            "2026-Q1,top_videos,music,10,12,14,999999,"
+            "https://github.com/example/source,2026-07-29\n"
+        )
+
+        errors = gate.validate_text(PurePosixPath("risky.csv"), text, 10)
+
+        self.assertTrue(
+            any(
+                "fields not in schema allowlist" in error
+                and "content_scope" in error
+                and "topvid_view_max" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_manifest_scope_discloses_mixed_sample_and_real_data(self) -> None:
+        index = json.loads(
+            (ROOT / "data" / "derived" / "public-index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        index["privacy_scope"] = "aggregate-only sample data; no raw tracking data"
+
+        errors = gate.validate_manifest(
+            index,
+            PurePosixPath("data/derived/public-index.json"),
+        )
+
+        self.assertTrue(
+            any("privacy_scope must disclose sample and real-derived data" in error for error in errors),
+            errors,
+        )
 
     def test_rejects_cross_artifact_unique_dimension_intersection(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

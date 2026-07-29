@@ -85,8 +85,9 @@ This does not answer:
 - Website: rendered with Chart.js in `site/`
 - Status: `real-derived`
 - Source: aggregate constants from the local activity dashboard artifact, derived from `TaiwanVtuberData/TaiwanVtuberTrackingData` and `TaiwanVtuberData/TaiwanVTuberTrackingDataArchive`.
-- Method: whitelist quarter-level aggregate fields only: tracked channel count, recently active counts, activation rate, subscriber tier counts, top-10 aggregate shares, and livestream aggregate counts.
+- Method: whitelist quarter-level aggregate fields only: tracked channel count, recently active counts, activation rate, subscriber tier counts, top-10 aggregate shares, livestream host counts, and median top-video views.
 - Privacy note: does not publish channel names, IDs, rankings, search results, raw rows, or individual time series.
+- Excluded: content-item counts and exact maximum-view values, because they do not establish distinct-contributor anonymity and can expose outliers.
 
 This answers:
 
@@ -121,26 +122,6 @@ This does not answer:
 - When a debut or graduation happened.
 - Any creator-level lifecycle or private identity information.
 
-### Content Category Quarterly Summary
-
-- Dataset: `data/derived/content-category-quarterly-summary.csv`
-- Website: rendered with Chart.js in `site/`
-- Status: `real-derived`
-- Source: aggregate constants from the local activity dashboard artifact.
-- Method: whitelist quarter-level content-category counts for top videos, YouTube livestreams, and Twitch livestreams; merge cells below 10 into `other` or omit them when the merged bucket remains below 10.
-- Privacy note: does not publish titles, publish times, stream URLs, video URLs, channel names, creator IDs, or exact per-creator sequences.
-
-This answers:
-
-- Which content categories dominate latest aggregate top-video and livestream views?
-- How does shorts share change over time at aggregate level?
-
-This does not answer:
-
-- Which creator made a specific video.
-- Which stream title was classified into which category.
-- Any live or per-person schedule.
-
 ## Sample Metrics
 
 ### Sample Content Category Share
@@ -169,7 +150,7 @@ Potential public replacements:
 
 - coarser aggregate buckets
 - percentiles without labels
-- k-anonymous category summaries
+- category summaries with distinct-contributor counts meeting the publication threshold
 - explanatory text about limitations
 
 Risk level:

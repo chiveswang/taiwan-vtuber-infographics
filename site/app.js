@@ -57,11 +57,13 @@ function splitCsvLine(line) {
 }
 
 function numberValue(row, key) {
+  if (row[key] === "") return null;
   const value = Number(row[key]);
   return Number.isFinite(value) ? value : null;
 }
 
 function formatNumber(value) {
+  if (value === null) return "—";
   return new Intl.NumberFormat("en-US").format(value);
 }
 
@@ -318,67 +320,6 @@ function renderConcentration(activityRows) {
   });
 }
 
-function latestScopeRows(contentRows, scope) {
-  const rows = settledRows(contentRows.filter((row) => row.content_scope === scope));
-  const latest = [...new Set(rows.map((row) => row.aggregate_period))].sort().pop();
-  return rows.filter((row) => row.aggregate_period === latest);
-}
-
-function categoryShareRows(contentRows, scope, category) {
-  const grouped = {};
-  settledRows(contentRows.filter((row) => row.content_scope === scope)).forEach((row) => {
-    grouped[row.aggregate_period] ??= { total: 0, target: 0 };
-    grouped[row.aggregate_period].total += Number(row.aggregate_count);
-    if (row.content_category === category) grouped[row.aggregate_period].target += Number(row.aggregate_count);
-  });
-  return Object.entries(grouped)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([period, values]) => ({ period, share: values.total ? (values.target / values.total) * 100 : 0 }));
-}
-
-function renderContent(contentRows) {
-  const latestTop = latestScopeRows(contentRows, "top_videos");
-  makeChart("top-video-categories", {
-    type: "doughnut",
-    data: {
-      labels: latestTop.map((row) => row.content_category),
-      datasets: [
-        {
-          data: latestTop.map((row) => numberValue(row, "aggregate_count")),
-          backgroundColor: [palette.blue, palette.purple, palette.green, palette.amber, palette.red, palette.pink, palette.teal, "#667085"],
-          borderColor: "#181b24",
-        },
-      ],
-    },
-    options: chartOptions({ scales: {} }),
-  });
-
-  const shortsRows = categoryShareRows(contentRows, "top_videos", "shorts");
-  makeChart("shorts-trend", {
-    type: "line",
-    data: {
-      labels: shortsRows.map((row) => quarterlyLabel(row.period)),
-      datasets: [{ label: "shorts share", data: shortsRows.map((row) => row.share), borderColor: palette.green, backgroundColor: "rgba(55,217,154,.12)", fill: true, tension: 0.25 }],
-    },
-    options: chartOptions({ scales: { ...chartOptions().scales, y: { ...chartOptions().scales.y, ticks: { color: palette.muted, callback: (value) => `${value}%` } } } }),
-  });
-
-  const latestYt = latestScopeRows(contentRows, "youtube_livestreams");
-  const latestTw = latestScopeRows(contentRows, "twitch_livestreams");
-  const categories = [...new Set([...latestYt, ...latestTw].map((row) => row.content_category))].sort();
-  makeChart("livestream-categories", {
-    type: "bar",
-    data: {
-      labels: categories,
-      datasets: [
-        { label: "YouTube", data: categories.map((category) => Number(latestYt.find((row) => row.content_category === category)?.aggregate_count ?? 0)), backgroundColor: palette.red },
-        { label: "Twitch", data: categories.map((category) => Number(latestTw.find((row) => row.content_category === category)?.aggregate_count ?? 0)), backgroundColor: palette.purple },
-      ],
-    },
-    options: chartOptions(),
-  });
-}
-
 function renderOutputs(publicIndex) {
   const rows = [...publicIndex.datasets, ...publicIndex.charts]
     .filter((item) => item.status === "real-derived")
@@ -404,14 +345,12 @@ async function init() {
   const publicIndex = await indexResponse.json();
   const activityRows = await loadCsv("data/derived/activity-quarterly-summary.csv");
   const cohortRows = await loadCsv("data/derived/cohort-quarterly-summary.csv");
-  const contentRows = await loadCsv("data/derived/content-category-quarterly-summary.csv");
 
   setTabs();
   renderKpis(activityRows, cohortRows);
   renderOverview(activityRows);
   renderCohort(cohortRows);
   renderConcentration(activityRows);
-  renderContent(contentRows);
   renderOutputs(publicIndex);
 }
 
