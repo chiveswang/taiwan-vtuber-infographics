@@ -53,9 +53,10 @@ python scripts/import_activity_dashboard_aggregates.py path/to/vtuber_activity_d
 
 - `data/derived/activity-quarterly-summary.csv`
 - `data/derived/cohort-quarterly-summary.csv`
-- `data/derived/content-category-quarterly-summary.csv`
 
 不要把來源 HTML、頻道搜尋資料、個人排行、頻道 ID、影片標題、直播 URL 或個別軌跡資料放入本 repo。
+
+匯入器會依公開門檻 10 抑制小樣本創作者 cell，並將 cohort 粗化為單一 `all-settled` 桶。內容項目數與精確最大觀看值不匯入，因為它們不代表不同創作者人數。
 
 ## Validate Static Dashboard
 

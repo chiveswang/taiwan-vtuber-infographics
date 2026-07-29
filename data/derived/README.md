@@ -22,6 +22,5 @@
 
 - `activity-quarterly-summary.csv`
 - `cohort-quarterly-summary.csv`
-- `content-category-quarterly-summary.csv`
 
-這些檔案只能保留季度、類別、計數、比例與來源 metadata。不得加入頻道名稱、Channel ID、影片標題、直播網址、排行名單、個人搜尋結果或任何可回推個人的細粒度時間序列。
+公開匯入會抑制小於 10 的創作者計數 cell，並把 cohort 的所有已結算季度合併成單一桶。內容項目數與精確最大觀看值不公開，因為它們不能證明至少 10 位不同貢獻者，且可能暴露離群值。不得加入頻道名稱、Channel ID、影片標題、直播網址、排行名單、個人搜尋結果或任何可回推個人的細粒度時間序列。

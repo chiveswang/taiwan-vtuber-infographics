@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Validate derived CSV files
-        run: python scripts/validate_public_data.py
+      - name: Test privacy gate
+        run: python -m unittest scripts.test_validate_public_data -v
 
       - name: Validate public asset index
         run: python scripts/validate_public_index.py
@@ -32,3 +32,6 @@ jobs:
 
       - name: Ensure generated files are committed
         run: git diff --exit-code
+
+      - name: Validate all public artifacts
+        run: python scripts/validate_public_data.py
