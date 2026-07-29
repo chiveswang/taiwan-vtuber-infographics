@@ -30,8 +30,8 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Validate public data
-        run: python scripts/validate_public_data.py
+      - name: Test privacy gate
+        run: python -m unittest scripts.test_validate_public_data -v
 
       - name: Validate public asset index
         run: python scripts/validate_public_index.py
@@ -45,6 +45,9 @@ jobs:
       - name: Ensure generated files are committed
         run: git diff --exit-code
 
+      - name: Validate and stage public artifacts
+        run: python scripts/validate_public_data.py --stage _site
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -53,7 +56,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
