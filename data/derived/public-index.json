@@ -5,7 +5,7 @@
   "source_project_policy": "Derived outputs may reference an upstream source project at the provenance level, but raw data and private source details are not published.",
   "privacy_rules": {
     "version": "1.0",
-    "minimum_group_size": null,
+    "minimum_group_size": 10,
     "reviewed_at": "2026-07-29"
   },
   "public_roots": [
@@ -98,19 +98,19 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; no channel names, IDs, rankings, or individual timelines.",
+      "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; positive count cells below 10 are suppressed.",
       "privacy_dimensions": [
         "aggregate_period"
       ]
     },
     {
       "id": "cohort-quarterly-summary",
-      "title": "Cohort quarterly summary",
+      "title": "Cohort all-settled summary",
       "path": "data/derived/cohort-quarterly-summary.csv",
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level debut, graduation, nationality bucket, and group/indie aggregate counts only; no individual creator rows.",
+      "privacy_note": "All settled periods are combined into one bucket; positive count cells below 10 are suppressed.",
       "privacy_dimensions": [
         "aggregate_period"
       ]
@@ -122,7 +122,7 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level title-category aggregates only; no video titles, publish times, URLs, channel names, or creator IDs.",
+      "privacy_note": "Quarter-level title-category aggregates only; cells below 10 are merged into other or omitted.",
       "privacy_dimensions": [
         "aggregate_period",
         "content_scope",

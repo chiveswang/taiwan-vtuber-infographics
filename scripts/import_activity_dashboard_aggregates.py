@@ -7,6 +7,7 @@ import csv
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 
@@ -45,6 +46,14 @@ def row_base(item: dict[str, object]) -> dict[str, object]:
     }
 
 
+def public_count(value: object) -> object:
+    try:
+        count = float(value)
+    except (TypeError, ValueError):
+        return value
+    return "" if 0 < abs(count) < 10 else value
+
+
 def activity_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
     fields = [
         "tracked_channels",
@@ -67,36 +76,76 @@ def activity_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
         "topvid_view_median",
         "topvid_view_max",
     ]
+    count_fields = {
+        "tracked_channels",
+        "recently_active_any",
+        "recently_active_yt",
+        "recently_active_twitch",
+        "yt_tier_mega",
+        "yt_tier_large",
+        "yt_tier_mid",
+        "yt_tier_small",
+        "yt_live_streams",
+        "yt_live_hosts",
+        "tw_live_streams",
+        "tw_live_hosts",
+    }
     rows = []
     for item in act:
         row = row_base(item)
-        row.update({field: item.get(field, "") for field in fields})
+        row.update(
+            {
+                field: (
+                    public_count(item.get(field, ""))
+                    if field in count_fields
+                    else item.get(field, "")
+                )
+                for field in fields
+            }
+        )
         rows.append(row)
     return rows
 
 
 def cohort_rows(coh: dict[str, object]) -> list[dict[str, object]]:
-    rows = []
-    for item in coh["series"]:
+    settled = [item for item in coh["series"] if not item.get("partial")]
+    if not settled:
+        return []
+
+    nationality = Counter()
+    groups = Counter()
+    for item in settled:
         nat = item.get("nat", {})
         group = item.get("grp", {})
-        row = row_base(item)
-        row.update(
-            {
-                "debuts": item.get("debuts", ""),
-                "graduations": item.get("graduations", ""),
-                "net": item.get("net", ""),
-                "cumulative_active": item.get("cumulative_active", ""),
-                "debuts_tw": nat.get("TW", 0),
-                "debuts_hk": nat.get("HK", 0),
-                "debuts_my": nat.get("MY", 0),
-                "debuts_other": sum(value for key, value in nat.items() if key not in {"TW", "HK", "MY"}),
-                "debuts_indie": group.get("indie", 0),
-                "debuts_group": group.get("group", 0),
-            }
-        )
-        rows.append(row)
-    return rows
+        nationality.update(nat)
+        groups.update(group)
+
+    return [
+        {
+            "aggregate_period": "all-settled",
+            "partial": "false",
+            "source_url": SOURCE_URL,
+            "last_verified": LAST_VERIFIED,
+            "debuts": public_count(sum(item.get("debuts", 0) for item in settled)),
+            "graduations": public_count(
+                sum(item.get("graduations", 0) for item in settled)
+            ),
+            "net": public_count(sum(item.get("net", 0) for item in settled)),
+            "cumulative_active": public_count(settled[-1].get("cumulative_active", 0)),
+            "debuts_tw": public_count(nationality["TW"]),
+            "debuts_hk": public_count(nationality["HK"]),
+            "debuts_my": public_count(nationality["MY"]),
+            "debuts_other": public_count(
+                sum(
+                    value
+                    for key, value in nationality.items()
+                    if key not in {"TW", "HK", "MY"}
+                )
+            ),
+            "debuts_indie": public_count(groups["indie"]),
+            "debuts_group": public_count(groups["group"]),
+        }
+    ]
 
 
 def content_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -107,9 +156,23 @@ def content_rows(act: list[dict[str, object]]) -> list[dict[str, object]]:
     }
     rows = []
     for item in act:
+        if item.get("partial"):
+            continue
         for source_key, scope in scopes.items():
             buckets = item.get(source_key) or {}
-            for category, count in sorted(buckets.items()):
+            public_buckets: dict[str, int] = {}
+            small_total = 0
+            for category, raw_count in buckets.items():
+                count = int(raw_count)
+                if 0 < count < 10:
+                    small_total += count
+                elif count >= 10:
+                    public_buckets[category] = count
+            if small_total:
+                merged_other = public_buckets.get("other", 0) + small_total
+                if merged_other >= 10:
+                    public_buckets["other"] = merged_other
+            for category, count in sorted(public_buckets.items()):
                 row = row_base(item)
                 row.update(
                     {

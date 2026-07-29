@@ -79,6 +79,7 @@ function latestSettled(rows) {
 
 function quarterlyLabel(period) {
   const [year, month] = period.split("-");
+  if (!month || !Number.isFinite(Number(month))) return period;
   const quarter = Math.ceil(Number(month) / 3);
   return `${year}Q${quarter}`;
 }

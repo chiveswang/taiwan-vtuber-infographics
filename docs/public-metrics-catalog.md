@@ -100,24 +100,25 @@ This does not answer:
 - Which channel ranks in the top group.
 - Any individual creator growth, schedule, or performance trajectory.
 
-### Cohort Quarterly Summary
+### Cohort All-Settled Summary
 
 - Dataset: `data/derived/cohort-quarterly-summary.csv`
 - Website: rendered with Chart.js in `site/`
 - Status: `real-derived`
 - Source: aggregate constants from the local activity dashboard artifact.
-- Method: whitelist quarter-level debut, graduation, net, cumulative, nationality-bucket, and group/indie aggregate counts.
+- Method: combine every settled quarter into one all-time bucket for debut, graduation, net, cumulative, nationality-bucket, and group/indie aggregate counts; suppress positive cells below 10.
 - Privacy note: no creator rows, debut lists, graduation lists, or identity details are published.
 
 This answers:
 
-- When did debut volume peak?
-- How does net active cohort growth change over time?
-- How do public aggregate group/indie debut buckets change by quarter?
+- What are the combined settled debut, graduation, and net counts?
+- What is the latest settled cumulative active count?
+- What is the combined public aggregate group/indie split?
 
 This does not answer:
 
 - Who debuted or graduated in a period.
+- When a debut or graduation happened.
 - Any creator-level lifecycle or private identity information.
 
 ### Content Category Quarterly Summary
@@ -126,7 +127,7 @@ This does not answer:
 - Website: rendered with Chart.js in `site/`
 - Status: `real-derived`
 - Source: aggregate constants from the local activity dashboard artifact.
-- Method: whitelist quarter-level content-category counts for top videos, YouTube livestreams, and Twitch livestreams.
+- Method: whitelist quarter-level content-category counts for top videos, YouTube livestreams, and Twitch livestreams; merge cells below 10 into `other` or omit them when the merged bucket remains below 10.
 - Privacy note: does not publish titles, publish times, stream URLs, video URLs, channel names, creator IDs, or exact per-creator sequences.
 
 This answers:

@@ -147,7 +147,6 @@ def generate_source_coverage() -> None:
     for month in month_names:
         items = fetch_json(f"{REPO_API}/{month}")
         family_counts: Counter[str] = Counter()
-        latest_by_family: dict[str, str] = {}
         for item in items:
             name = item["name"]
             if name.startswith("basic-data_"):
@@ -159,7 +158,6 @@ def generate_source_coverage() -> None:
             else:
                 family = "other"
             family_counts[family] += 1
-            latest_by_family[family] = max(latest_by_family.get(family, ""), name)
 
         for family, count in sorted(family_counts.items()):
             rows.append(
@@ -168,7 +166,6 @@ def generate_source_coverage() -> None:
                     "source_project": SOURCE_PROJECT,
                     "source_category": family,
                     "aggregate_count": count,
-                    "latest_snapshot_name": latest_by_family[family],
                     "source_url": f"https://github.com/{SOURCE_PROJECT}/tree/master/{month}",
                     "last_verified": LAST_VERIFIED,
                     "notes_for_methodology": "Derived from public repository file metadata only; raw CSV rows not copied.",
@@ -182,7 +179,6 @@ def generate_source_coverage() -> None:
             "source_project",
             "source_category",
             "aggregate_count",
-            "latest_snapshot_name",
             "source_url",
             "last_verified",
             "notes_for_methodology",

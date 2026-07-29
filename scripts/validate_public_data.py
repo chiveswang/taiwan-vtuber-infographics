@@ -777,7 +777,7 @@ def stage_publication(
         "rules_version": rules["version"],
         "minimum_group_size": rules["minimum_group_size"],
         "status": "passed",
-        "passed_at": datetime.now(timezone.utc).isoformat(),
+        "passed_at": datetime.now(timezone.utc).date().isoformat(),
         "files": sorted(path.as_posix() for path in validated),
     }
     (destination / "privacy-validation-report.json").write_text(

@@ -5,7 +5,11 @@ import tempfile
 import unittest
 from pathlib import Path, PurePosixPath
 
+from scripts import import_activity_dashboard_aggregates as importer
 from scripts import validate_public_data as gate
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _dataset(item_id: str, path: str) -> dict[str, object]:
@@ -70,6 +74,125 @@ def _safe_csv(count: int = 10, category: str = "music") -> str:
 
 
 class PublicDataGateTests(unittest.TestCase):
+    def test_repository_publication_is_safe_at_k_10(self) -> None:
+        errors, index, _ = gate.validate_publication(
+            ROOT,
+            ROOT / "data" / "derived" / "public-index.json",
+        )
+
+        self.assertEqual([], errors)
+        minimum = index["privacy_rules"]["minimum_group_size"]
+        self.assertTrue(
+            any(
+                "minimum_group_size" in error
+                for error in gate.validate_text(
+                    PurePosixPath("below-threshold.csv"),
+                    _safe_csv(9),
+                    minimum,
+                )
+            )
+        )
+        self.assertEqual(
+            [],
+            gate.validate_text(
+                PurePosixPath("at-threshold.csv"),
+                _safe_csv(10),
+                minimum,
+            ),
+        )
+
+    def test_importer_suppresses_positive_counts_below_k_10(self) -> None:
+        public_count = getattr(importer, "public_count", lambda value: value)
+
+        self.assertEqual("", public_count(9))
+        self.assertEqual("", public_count(-9))
+        self.assertEqual(0, public_count(0))
+        self.assertEqual(10, public_count(10))
+
+    def test_importer_merges_small_content_categories_into_other(self) -> None:
+        rows = importer.content_rows(
+            [
+                {
+                    "quarter": "2026-03",
+                    "partial": False,
+                    "topvid_buckets": {
+                        "asmr": 3,
+                        "music": 12,
+                        "other": 20,
+                        "shorts": 5,
+                    },
+                }
+            ]
+        )
+
+        self.assertEqual(
+            [("music", 12), ("other", 28)],
+            [
+                (row["content_category"], row["aggregate_count"])
+                for row in rows
+            ],
+        )
+
+    def test_importer_coarsens_cohort_to_one_settled_bucket(self) -> None:
+        rows = importer.cohort_rows(
+            {
+                "series": [
+                    {
+                        "quarter": "2025-12",
+                        "partial": False,
+                        "debuts": 12,
+                        "graduations": 2,
+                        "net": 10,
+                        "cumulative_active": 100,
+                        "nat": {"TW": 8, "HK": 2, "MY": 1, "JP": 1},
+                        "grp": {"indie": 7, "group": 5},
+                    },
+                    {
+                        "quarter": "2026-03",
+                        "partial": False,
+                        "debuts": 18,
+                        "graduations": 8,
+                        "net": 10,
+                        "cumulative_active": 110,
+                        "nat": {"TW": 10, "HK": 3, "MY": 2, "JP": 3},
+                        "grp": {"indie": 11, "group": 7},
+                    },
+                    {
+                        "quarter": "2026-06",
+                        "partial": True,
+                        "debuts": 99,
+                        "graduations": 99,
+                        "net": 0,
+                        "cumulative_active": 110,
+                        "nat": {"TW": 99},
+                        "grp": {"indie": 99},
+                    },
+                ]
+            }
+        )
+
+        self.assertEqual(
+            [
+                {
+                    "aggregate_period": "all-settled",
+                    "partial": "false",
+                    "source_url": importer.SOURCE_URL,
+                    "last_verified": importer.LAST_VERIFIED,
+                    "debuts": 30,
+                    "graduations": 10,
+                    "net": 20,
+                    "cumulative_active": 110,
+                    "debuts_tw": 18,
+                    "debuts_hk": "",
+                    "debuts_my": "",
+                    "debuts_other": "",
+                    "debuts_indie": 18,
+                    "debuts_group": 12,
+                }
+            ],
+            rows,
+        )
+
     def test_rejects_identifiers_hidden_in_each_public_format(self) -> None:
         cases = {
             "neutral.csv": (
@@ -459,6 +582,12 @@ class PublicDataGateTests(unittest.TestCase):
                 source.read_bytes(),
                 (root / "_site" / "data" / "derived" / "summary.csv").read_bytes(),
             )
+            report = json.loads(
+                (root / "_site" / "privacy-validation-report.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertRegex(report["passed_at"], r"^\d{4}-\d{2}-\d{2}$")
 
 
 if __name__ == "__main__":

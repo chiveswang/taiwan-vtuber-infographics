@@ -57,6 +57,8 @@ python scripts/import_activity_dashboard_aggregates.py path/to/vtuber_activity_d
 
 不要把來源 HTML、頻道搜尋資料、個人排行、頻道 ID、影片標題、直播 URL 或個別軌跡資料放入本 repo。
 
+匯入器會依公開門檻 10 抑制小樣本 cell、合併小內容分類，並將 cohort 粗化為單一 `all-settled` 桶。
+
 ## Validate Static Dashboard
 
 ```bash
