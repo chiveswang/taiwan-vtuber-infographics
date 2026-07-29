@@ -1,9 +1,7 @@
 name: Deploy dashboard
 
 on:
-  push:
-    branches:
-      - main
+  # Keep publication manual while the real-derived data license gate in #1 is open.
   workflow_dispatch:
 
 permissions:
