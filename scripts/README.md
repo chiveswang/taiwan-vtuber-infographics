@@ -15,7 +15,7 @@
 python scripts/validate_public_data.py
 ```
 
-目前檢查範圍是 `data/derived/**/*.csv`。
+目前會檢查 `public-index.json` 列出的所有公開 CSV、JSON、SVG、HTML、JavaScript 與 CSS。`site/` 檔案還必須符合 `REVIEWED_SITE_SHA256` 的已審核內容指紋；新增網站檔案或修改 UI copy／payload 時，必須先完成隱私複審再更新指紋。動態或內嵌 JavaScript data payload 不在公開 schema 內，應改用已列入 manifest 且通過值層級驗證的 CSV／JSON。
 
 ## Generate Sample Charts
 

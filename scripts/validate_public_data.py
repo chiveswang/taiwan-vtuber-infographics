@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import io
 import json
@@ -23,6 +24,11 @@ from xml.etree import ElementTree
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INDEX = ROOT / "data" / "derived" / "public-index.json"
 PUBLIC_EXTENSIONS = {".csv", ".json", ".svg", ".html", ".js", ".css"}
+REVIEWED_SITE_SHA256 = {
+    "site/app.js": "4ab61abf3df5043729dbf3f5a9a467cb2be7d0dad661ff278db63e6fd66503ea",
+    "site/index.html": "46fba262ea1a66059b120738ad3fb3503c0fccd5f9f6a8c6ca91da27bf740302",
+    "site/styles.css": "bf6a006ae123c3b2015de8e7a3e0c4dab9132f189ea41a189483bd6c59c26f8b",
+}
 PROHIBITED_FIELDS = {
     "real_name",
     "home_address",
@@ -795,6 +801,11 @@ def validate_publication(
     minimum = index.get("privacy_rules", {}).get("minimum_group_size")
     minimum = minimum if isinstance(minimum, int) and not isinstance(minimum, bool) else 0
     status_by_path: dict[PurePath, str] = {}
+    site_paths = {
+        PurePosixPath(path)
+        for path in index.get("site_files", [])
+        if isinstance(path, str) and path
+    }
     for collection in ("datasets", "charts"):
         for item in index.get(collection, []):
             if not isinstance(item, dict) or not item.get("path"):
@@ -822,6 +833,19 @@ def validate_publication(
         except (OSError, UnicodeError) as error:
             errors.append(f"{relative.as_posix()}: cannot read public artifact: {error}")
             continue
+        if relative in site_paths:
+            expected_sha256 = REVIEWED_SITE_SHA256.get(relative.as_posix())
+            actual_sha256 = hashlib.sha256(
+                content.replace(b"\r\n", b"\n")
+            ).hexdigest()
+            if expected_sha256 is None:
+                errors.append(
+                    f"{relative.as_posix()}: no reviewed site content schema"
+                )
+            elif actual_sha256 != expected_sha256:
+                errors.append(
+                    f"{relative.as_posix()}: content does not match reviewed site schema"
+                )
         validated[relative] = content
         artifact_text[relative] = text
         errors.extend(validate_text(relative, text, item_minimum))
