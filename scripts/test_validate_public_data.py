@@ -74,6 +74,24 @@ def _safe_csv(count: int = 10, category: str = "music") -> str:
     )
 
 
+def _site_probe_errors(relative: str, probe: str) -> list[str]:
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        (root / "data" / "derived").mkdir(parents=True)
+        artifact = root / relative
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_bytes(
+            (ROOT / relative).read_bytes() + b"\n" + probe.encode("utf-8")
+        )
+        index_path = _write_index(
+            root,
+            site_files=[relative],
+            public_roots=["data/derived", PurePosixPath(relative).parts[0]],
+        )
+        errors, _, _ = gate.validate_publication(root, index_path)
+        return errors
+
+
 class PublicDataGateTests(unittest.TestCase):
     def test_repository_publication_is_safe_at_k_10(self) -> None:
         errors, index, _ = gate.validate_publication(
@@ -244,6 +262,61 @@ class PublicDataGateTests(unittest.TestCase):
             with self.subTest(path=path):
                 errors = gate.validate_text(PurePosixPath(path), text, 10)
                 self.assertTrue(errors, path)
+
+    def test_rejects_dynamic_and_name_bearing_unreviewed_javascript(self) -> None:
+        probes = [
+            'const payload = {["aggregate_count"]: 3};',
+            'const payload = Object.fromEntries([["aggregate_count", 3]]);',
+            'const payload = {label: "Alice"};',
+            'const key = "aggregate_" + "count"; const payload = {[key]: 3};',
+            'const payload = Object.assign({}, {label: `Alice`});',
+            'const payload = {...{label: "Alice"}};',
+        ]
+        for probe in probes:
+            with self.subTest(probe=probe):
+                errors = _site_probe_errors("site/app.js", probe)
+                self.assertTrue(
+                    any("reviewed site" in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_unreviewed_visible_html_names(self) -> None:
+        probes = [
+            "<p>Alice</p>",
+            "<span>Alice Smith</span>",
+            "<p>王小明</p>",
+            "<p>A&#108;ice</p>",
+        ]
+        for probe in probes:
+            with self.subTest(probe=probe):
+                errors = _site_probe_errors("site/index.html", probe)
+                self.assertTrue(
+                    any("reviewed site" in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_site_file_without_a_reviewed_content_schema(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "data" / "derived").mkdir(parents=True)
+            site = root / "site"
+            site.mkdir()
+            (site / "extra.js").write_text(
+                'const message = "aggregate UI";\n',
+                encoding="utf-8",
+            )
+            index_path = _write_index(
+                root,
+                site_files=["site/extra.js"],
+                public_roots=["data/derived", "site"],
+            )
+
+            errors, _, _ = gate.validate_publication(root, index_path)
+
+            self.assertTrue(
+                any("reviewed site" in error for error in errors),
+                errors,
+            )
 
     def test_suppressed_blank_is_null_in_site_numeric_conversion(self) -> None:
         script = r"""
