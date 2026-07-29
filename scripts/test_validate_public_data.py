@@ -190,6 +190,31 @@ class PublicDataGateTests(unittest.TestCase):
                 errors,
             )
 
+    def test_rejects_canonical_path_alias_without_lowering_k_size(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            data = root / "data" / "derived"
+            data.mkdir(parents=True)
+            shared = data / "shared.csv"
+            shared.write_text(_safe_csv(3), encoding="utf-8")
+            sample_alias = _dataset("sample-alias", "data//derived/shared.csv")
+            sample_alias["status"] = "sample"
+            index_path = _write_index(
+                root,
+                datasets=[
+                    _dataset("real", "data/derived/shared.csv"),
+                    sample_alias,
+                ],
+            )
+
+            errors, _, _ = gate.validate_publication(root, index_path)
+
+            self.assertTrue(
+                any("duplicate publication path data/derived/shared.csv" in error for error in errors),
+                errors,
+            )
+            self.assertTrue(any("minimum_group_size" in error for error in errors), errors)
+
     def test_k_size_covers_net_recent_activity_and_json_counts_without_flagging_ratios(self) -> None:
         csv_cases = {
             "net.csv": (
@@ -222,6 +247,23 @@ class PublicDataGateTests(unittest.TestCase):
         )
         errors = gate.validate_text(PurePosixPath("source.csv"), text, 10)
         self.assertTrue(any("creator channel URL" in error for error in errors), errors)
+
+    def test_normalizes_percent_encoded_and_protocol_relative_creator_urls(self) -> None:
+        cases = {
+            "percent-encoded.csv": "https://youtube.com/%40creator",
+            "protocol-relative.csv": "//youtube.com/@creator",
+        }
+        for path, source_url in cases.items():
+            with self.subTest(path=path):
+                text = (
+                    "aggregate_period,aggregate_count,source_url,last_verified\n"
+                    f"2026-Q1,12,{source_url},2026-07-29\n"
+                )
+                errors = gate.validate_text(PurePosixPath(path), text, 10)
+                self.assertTrue(
+                    any("creator channel URL" in error for error in errors),
+                    errors,
+                )
 
     def test_normalizes_html_json_and_js_escapes_and_compact_timestamps(self) -> None:
         cases = {
@@ -287,6 +329,98 @@ class PublicDataGateTests(unittest.TestCase):
                 any("cross-artifact unique dimension intersection" in error for error in errors),
                 errors,
             )
+
+    def test_rejects_unique_intersection_on_one_shared_dimension(self) -> None:
+        first = _dataset("first", "data/derived/first.csv")
+        second = _dataset("second", "data/derived/second.csv")
+        first["privacy_dimensions"] = ["aggregate_period"]
+        second["privacy_dimensions"] = ["aggregate_period"]
+        errors = gate.validate_dimension_intersections(
+            {"datasets": [first, second]},
+            {
+                PurePosixPath(first["path"]): (
+                    "aggregate_period,aggregate_count,source_url,last_verified\n"
+                    "2026-Q1,12,https://github.com/example/source,2026-07-29\n"
+                ),
+                PurePosixPath(second["path"]): (
+                    "aggregate_period,aggregate_count,source_url,last_verified\n"
+                    "2026-Q1,14,https://github.com/example/source,2026-07-29\n"
+                ),
+            },
+        )
+
+        self.assertTrue(
+            any("cross-artifact unique dimension intersection" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_under_disclosed_row_dimensions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            data = root / "data" / "derived"
+            data.mkdir(parents=True)
+            source = data / "summary.csv"
+            source.write_text(
+                "aggregate_period,category,aggregate_count,source_url,last_verified\n"
+                "2026-Q1,music,12,https://github.com/example/source,2026-07-29\n"
+                "2026-Q1,gaming,14,https://github.com/example/source,2026-07-29\n",
+                encoding="utf-8",
+            )
+            dataset = _dataset("summary", "data/derived/summary.csv")
+            dataset["privacy_dimensions"] = ["aggregate_period"]
+            index_path = _write_index(root, datasets=[dataset])
+
+            errors, _, _ = gate.validate_publication(root, index_path)
+
+            self.assertTrue(
+                any(
+                    "privacy_dimensions under-discloses row dimensions: category" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+    def test_normalizes_blank_dimensions_and_signature_values(self) -> None:
+        blank = _dataset("blank", "data/derived/blank.csv")
+        blank["privacy_dimensions"] = ["   "]
+        errors = gate.validate_manifest(
+            {
+                "project": "privacy-gate-fixture",
+                "generated_at": "2026-07-29",
+                "privacy_scope": "aggregate-only fixture",
+                "privacy_rules": {
+                    "version": "test",
+                    "minimum_group_size": 10,
+                    "reviewed_at": "2026-07-29",
+                },
+                "public_roots": ["data/derived"],
+                "site_files": [],
+                "source_project_policy": "Public aggregate fixtures only.",
+                "datasets": [blank],
+                "charts": [],
+            },
+            PurePosixPath("data/derived/public-index.json"),
+        )
+        self.assertTrue(
+            any("requires unique non-empty privacy_dimensions" in error for error in errors),
+            errors,
+        )
+
+        first = _dataset("first", "data/derived/first.csv")
+        second = _dataset("second", "data/derived/second.csv")
+        first["privacy_dimensions"] = ["category"]
+        second["privacy_dimensions"] = ["category"]
+        errors = gate.validate_dimension_intersections(
+            {"datasets": [first, second]},
+            {
+                PurePosixPath(first["path"]): _safe_csv(12, " music "),
+                PurePosixPath(second["path"]): _safe_csv(14, "music"),
+            },
+        )
+        self.assertTrue(
+            any("cross-artifact unique dimension intersection" in error for error in errors),
+            errors,
+        )
 
     def test_stage_rejects_source_bytes_changed_after_validation(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

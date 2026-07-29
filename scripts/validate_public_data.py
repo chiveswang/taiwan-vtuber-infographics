@@ -15,6 +15,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path, PurePath, PurePosixPath
 from typing import Mapping
+from urllib.parse import unquote
 from xml.etree import ElementTree
 
 
@@ -87,6 +88,15 @@ ALLOWED_CSV_FIELDS = {
     "yt_top10_share",
     "yt_view_top10_share",
 }
+PRIVACY_DIMENSION_FIELDS = {
+    "aggregate_period",
+    "category",
+    "content_category",
+    "content_scope",
+    "platform_category",
+    "public_status_category",
+    "source_category",
+}
 GENERIC_JSON_FIELDS = ALLOWED_CSV_FIELDS | {"count", "year"}
 MANIFEST_TOP_LEVEL_FIELDS = {
     "project",
@@ -156,7 +166,7 @@ VALUE_PATTERNS = {
     ),
     "youtube channel id": re.compile(r"\bUC[A-Za-z0-9_-]{22}\b"),
     "creator channel URL": re.compile(
-        r"https?://(?:www\.)?(?:"
+        r"(?:https?:)?//(?:www\.)?(?:"
         r"youtube\.com/(?:channel/|@|c/|user/)|"
         r"twitch\.tv/(?!directory(?:/|$)|videos(?:/|$))"
         r")[^\s\"'<>]+",
@@ -231,7 +241,7 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
         if not isinstance(item_path, str) or not item_path:
             errors.append(f"public-index.json: site_files[{position}] must be a non-empty path")
             continue
-        paths.append((item_path, f"site_files[{position}]"))
+        paths.append((PurePosixPath(item_path).as_posix(), f"site_files[{position}]"))
 
     for collection, allowed_fields, required_fields in (
         ("datasets", DATASET_FIELDS, DATASET_FIELDS - {"privacy_dimensions"}),
@@ -253,16 +263,22 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
             else:
                 errors.append(f"{label}: id must be a non-empty string")
             if isinstance(item_path, str) and item_path:
-                paths.append((item_path, label))
+                paths.append((PurePosixPath(item_path).as_posix(), label))
             else:
                 errors.append(f"{label}: path must be a non-empty string")
             if collection == "datasets" and item.get("status") != "sample":
                 dimensions = item.get("privacy_dimensions")
+                normalized_dimensions = (
+                    [field.strip() for field in dimensions if isinstance(field, str)]
+                    if isinstance(dimensions, list)
+                    else []
+                )
                 if (
                     not isinstance(dimensions, list)
                     or not dimensions
-                    or any(not isinstance(field, str) or not field for field in dimensions)
-                    or len(set(dimensions)) != len(dimensions)
+                    or len(normalized_dimensions) != len(dimensions)
+                    or any(not field for field in normalized_dimensions)
+                    or len(set(normalized_dimensions)) != len(normalized_dimensions)
                 ):
                     errors.append(
                         f"{label}: real-derived dataset requires unique non-empty "
@@ -322,7 +338,7 @@ def _normalize_escapes(text: str) -> str:
     normalized = text
     for _ in range(3):
         previous = normalized
-        normalized = html.unescape(normalized).replace("\\/", "/")
+        normalized = unquote(html.unescape(normalized).replace("\\/", "/"))
         normalized = re.sub(
             r"\\x([0-9A-Fa-f]{2})",
             lambda match: chr(int(match.group(1), 16)),
@@ -547,6 +563,11 @@ def _dataset_rows(path: PurePath, text: str) -> list[dict[str, object]] | None:
     return None
 
 
+def _dimension_value(row: Mapping[str, object], dimension: str) -> str:
+    value = row.get(dimension)
+    return "" if value is None else str(value).strip()
+
+
 def validate_dimension_intersections(
     index: dict[str, object],
     artifact_text: Mapping[PurePath, str],
@@ -562,9 +583,10 @@ def validate_dimension_intersections(
             not isinstance(item_path, str)
             or not isinstance(dimensions, list)
             or not dimensions
-            or any(not isinstance(field, str) or not field for field in dimensions)
+            or any(not isinstance(field, str) or not field.strip() for field in dimensions)
         ):
             continue
+        normalized_dimensions = tuple(field.strip() for field in dimensions)
         path = PurePosixPath(item_path)
         rows = _dataset_rows(path, artifact_text.get(path, ""))
         if rows is None:
@@ -573,12 +595,26 @@ def validate_dimension_intersections(
                 "a CSV or top-level JSON row array"
             )
             continue
+        under_disclosed = sorted(
+            {
+                field
+                for row in rows
+                for field in row
+                if field in PRIVACY_DIMENSION_FIELDS
+                and field not in normalized_dimensions
+            }
+        )
+        if under_disclosed:
+            errors.append(
+                f"{path.as_posix()}: privacy_dimensions under-discloses row dimensions: "
+                f"{', '.join(under_disclosed)}"
+            )
         missing = sorted(
             {
                 dimension
-                for dimension in dimensions
+                for dimension in normalized_dimensions
                 for row in rows
-                if dimension not in row or str(row.get(dimension, "")).strip() == ""
+                if dimension not in row or not _dimension_value(row, dimension)
             }
         )
         if missing:
@@ -587,19 +623,19 @@ def validate_dimension_intersections(
                 f"{', '.join(missing)}"
             )
             continue
-        disclosed.append((path, tuple(dimensions), rows))
+        disclosed.append((path, normalized_dimensions, rows))
 
     for left_index, (left_path, left_dimensions, left_rows) in enumerate(disclosed):
         for right_path, right_dimensions, right_rows in disclosed[left_index + 1 :]:
             shared = tuple(sorted(set(left_dimensions) & set(right_dimensions)))
-            if len(shared) < 2:
+            if not shared:
                 continue
             left_signatures = Counter(
-                tuple(str(row[field]) for field in shared)
+                tuple(_dimension_value(row, field) for field in shared)
                 for row in left_rows
             )
             right_signatures = Counter(
-                tuple(str(row[field]) for field in shared)
+                tuple(_dimension_value(row, field) for field in shared)
                 for row in right_rows
             )
             unique_intersections = sum(
@@ -674,12 +710,16 @@ def validate_publication(
 
     minimum = index.get("privacy_rules", {}).get("minimum_group_size")
     minimum = minimum if isinstance(minimum, int) and not isinstance(minimum, bool) else 0
-    status_by_path = {
-        PurePosixPath(item["path"]): item.get("status")
-        for collection in ("datasets", "charts")
-        for item in index.get(collection, [])
-        if isinstance(item, dict) and item.get("path")
-    }
+    status_by_path: dict[PurePath, str] = {}
+    for collection in ("datasets", "charts"):
+        for item in index.get(collection, []):
+            if not isinstance(item, dict) or not item.get("path"):
+                continue
+            relative = PurePosixPath(item["path"])
+            if item.get("status") == "sample":
+                status_by_path.setdefault(relative, "sample")
+            else:
+                status_by_path[relative] = "real-derived"
     validated: dict[PurePath, bytes] = {}
     artifact_text: dict[PurePath, str] = {}
     for relative in sorted(allowed, key=lambda path: path.as_posix()):
