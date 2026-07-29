@@ -44,7 +44,11 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
+      "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published.",
+      "privacy_dimensions": [
+        "aggregate_period",
+        "platform_category"
+      ]
     },
     {
       "id": "source-coverage-summary",
@@ -53,7 +57,12 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Derived from public repository file metadata only; raw CSV rows not copied."
+      "privacy_note": "Derived from public repository file metadata only; raw CSV rows not copied.",
+      "privacy_dimensions": [
+        "aggregate_period",
+        "source_project",
+        "source_category"
+      ]
     },
     {
       "id": "public-status-summary",
@@ -62,7 +71,11 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published."
+      "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published.",
+      "privacy_dimensions": [
+        "aggregate_period",
+        "public_status_category"
+      ]
     },
     {
       "id": "quarterly-ecosystem-coverage",
@@ -71,7 +84,12 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied."
+      "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied.",
+      "privacy_dimensions": [
+        "aggregate_period",
+        "source_project",
+        "source_category"
+      ]
     },
     {
       "id": "activity-quarterly-summary",
@@ -80,7 +98,10 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; no channel names, IDs, rankings, or individual timelines."
+      "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; no channel names, IDs, rankings, or individual timelines.",
+      "privacy_dimensions": [
+        "aggregate_period"
+      ]
     },
     {
       "id": "cohort-quarterly-summary",
@@ -89,7 +110,10 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level debut, graduation, nationality bucket, and group/indie aggregate counts only; no individual creator rows."
+      "privacy_note": "Quarter-level debut, graduation, nationality bucket, and group/indie aggregate counts only; no individual creator rows.",
+      "privacy_dimensions": [
+        "aggregate_period"
+      ]
     },
     {
       "id": "content-category-quarterly-summary",
@@ -98,7 +122,12 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
-      "privacy_note": "Quarter-level title-category aggregates only; no video titles, publish times, URLs, channel names, or creator IDs."
+      "privacy_note": "Quarter-level title-category aggregates only; no video titles, publish times, URLs, channel names, or creator IDs.",
+      "privacy_dimensions": [
+        "aggregate_period",
+        "content_scope",
+        "content_category"
+      ]
     }
   ],
   "charts": [
@@ -112,7 +141,7 @@
       "privacy_note": "Fake aggregate demo chart only."
     },
     {
-      "id": "platform-coverage-summary",
+      "id": "platform-coverage-summary-chart",
       "title": "Platform coverage summary",
       "path": "charts/exports/platform-coverage-summary.svg",
       "type": "svg",
@@ -121,7 +150,7 @@
       "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
     },
     {
-      "id": "source-coverage-summary",
+      "id": "source-coverage-summary-chart",
       "title": "Source coverage summary",
       "path": "charts/exports/source-coverage-summary.svg",
       "type": "svg",
@@ -130,7 +159,7 @@
       "privacy_note": "Monthly file metadata counts only; raw CSV rows not copied."
     },
     {
-      "id": "public-status-summary",
+      "id": "public-status-summary-chart",
       "title": "Public status summary",
       "path": "charts/exports/public-status-summary.svg",
       "type": "svg",
@@ -139,7 +168,7 @@
       "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published."
     },
     {
-      "id": "quarterly-ecosystem-coverage",
+      "id": "quarterly-ecosystem-coverage-chart",
       "title": "Quarterly ecosystem coverage",
       "path": "charts/exports/quarterly-ecosystem-coverage.svg",
       "type": "svg",
