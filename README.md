@@ -99,4 +99,4 @@ https://chiveswang.github.io/taiwan-vtuber-infographics/site/
 
 ## License
 
-程式碼使用 MIT License。資料與圖表授權仍需在正式公開前確認，請見 [LICENSE-DATA.md](LICENSE-DATA.md)。
+程式碼使用 MIT License；`data/derived/`、`charts/exports/` 與 `site/` 公開內容使用 CC BY 4.0。每個公開 dataset／chart 的機器可讀授權與 provenance 記錄於 `data/derived/public-index.json`。完整範圍、優先順序與 attribution 請見 [LICENSE-DATA.md](LICENSE-DATA.md)。

@@ -1,8 +1,16 @@
 {
   "project": "taiwan-vtuber-infographics",
-  "generated_at": "2026-06-07",
+  "generated_at": "2026-08-31",
   "privacy_scope": "aggregate-only sample and real-derived data; no raw tracking data",
   "source_project_policy": "Derived outputs may reference an upstream source project at the provenance level, but raw data and private source details are not published.",
+  "license_policy": {
+    "code": "MIT",
+    "derived_data": "CC-BY-4.0",
+    "chart_exports": "CC-BY-4.0",
+    "site_content": "CC-BY-4.0",
+    "policy_url": "LICENSE-DATA.md",
+    "attribution": "Taiwan VTuber Infographics contributors, https://github.com/chiveswang/taiwan-vtuber-infographics, CC BY 4.0."
+  },
   "privacy_rules": {
     "version": "1.0",
     "minimum_group_size": 10,
@@ -26,6 +34,9 @@
       "type": "csv",
       "status": "sample",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/chiveswang/taiwan-vtuber-infographics/blob/main/data/derived/aggregate-summary.csv",
+      "provenance": "Project-authored fake aggregate demo data; no upstream tracking rows used.",
       "privacy_note": "Fake aggregate demo data only."
     },
     {
@@ -35,6 +46,9 @@
       "type": "csv",
       "status": "sample",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/chiveswang/taiwan-vtuber-infographics/blob/main/data/derived/content-category-trends.csv",
+      "provenance": "Project-authored fake aggregate trend demo; no upstream tracking rows used.",
       "privacy_note": "Fake aggregate demo data only."
     },
     {
@@ -44,6 +58,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "provenance": "Privacy-reviewed aggregate of public upstream platform-field presence; upstream repository uses The Unlicense.",
       "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published.",
       "privacy_dimensions": [
         "aggregate_period",
@@ -57,6 +74,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "provenance": "Privacy-reviewed aggregate of public upstream repository file metadata; upstream repository uses The Unlicense.",
       "privacy_note": "Derived from public repository file metadata only; raw CSV rows not copied.",
       "privacy_dimensions": [
         "aggregate_period",
@@ -71,6 +91,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "provenance": "Privacy-reviewed aggregate of public upstream Activity labels; upstream repository uses The Unlicense.",
       "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published.",
       "privacy_dimensions": [
         "aggregate_period",
@@ -84,6 +107,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "provenance": "Privacy-reviewed quarter-level aggregation of public upstream repository metadata; upstream repository uses The Unlicense.",
       "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied.",
       "privacy_dimensions": [
         "aggregate_period",
@@ -98,6 +124,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "provenance": "Privacy-reviewed aggregate activity metrics derived from the current and archive upstream repositories; upstream repositories use The Unlicense.",
       "privacy_note": "Quarter-level aggregate activity, scale, concentration, and tier metrics only; positive count cells below 10 are suppressed.",
       "privacy_dimensions": [
         "aggregate_period"
@@ -110,6 +139,9 @@
       "type": "csv",
       "status": "real-derived",
       "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVTuberTrackingDataArchive",
+      "provenance": "Privacy-reviewed all-settled cohort aggregate derived from current and archive upstream repositories; upstream repositories use The Unlicense.",
       "privacy_note": "All settled periods are combined into one bucket; positive count cells below 10 are suppressed.",
       "privacy_dimensions": [
         "aggregate_period"
@@ -124,6 +156,11 @@
       "type": "svg",
       "status": "sample",
       "source_dataset": "data/derived/aggregate-summary.csv",
+      "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/chiveswang/taiwan-vtuber-infographics/blob/main/data/derived/aggregate-summary.csv",
+      "generator": "scripts/generate_sample_charts.py",
+      "generator_version": "1.0",
       "privacy_note": "Fake aggregate demo chart only."
     },
     {
@@ -133,6 +170,11 @@
       "type": "svg",
       "status": "real-derived",
       "source_dataset": "data/derived/platform-coverage-summary.csv",
+      "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "generator": "scripts/generate_sample_charts.py",
+      "generator_version": "1.0",
       "privacy_note": "Aggregate field presence only; no names, IDs, or raw rows published."
     },
     {
@@ -142,6 +184,11 @@
       "type": "svg",
       "status": "real-derived",
       "source_dataset": "data/derived/source-coverage-summary.csv",
+      "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "generator": "scripts/generate_sample_charts.py",
+      "generator_version": "1.0",
       "privacy_note": "Monthly file metadata counts only; raw CSV rows not copied."
     },
     {
@@ -151,6 +198,11 @@
       "type": "svg",
       "status": "real-derived",
       "source_dataset": "data/derived/public-status-summary.csv",
+      "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "generator": "scripts/generate_sample_charts.py",
+      "generator_version": "1.0",
       "privacy_note": "Aggregate of upstream Activity labels only; not real-time status and no names, IDs, or raw rows published."
     },
     {
@@ -160,6 +212,11 @@
       "type": "svg",
       "status": "real-derived",
       "source_dataset": "data/derived/quarterly-ecosystem-coverage.csv",
+      "last_verified": "2026-06-07",
+      "license": "CC-BY-4.0",
+      "source_url": "https://github.com/TaiwanVtuberData/TaiwanVtuberTrackingData",
+      "generator": "scripts/generate_sample_charts.py",
+      "generator_version": "1.0",
       "privacy_note": "Quarter-level aggregate source metadata counts only; raw CSV rows not copied."
     }
   ]

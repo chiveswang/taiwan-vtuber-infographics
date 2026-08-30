@@ -10,6 +10,8 @@ It reads only:
 
 It does not read raw upstream data, names, IDs, URLs as rows, or individual timelines.
 
+Code is MIT licensed. Public data, chart exports, and site content are CC BY 4.0; see [`LICENSE-DATA.md`](../LICENSE-DATA.md) and the machine-readable `license_policy` in `data/derived/public-index.json`.
+
 Current modules:
 
 - aggregate summary cards
