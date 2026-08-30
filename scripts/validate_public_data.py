@@ -26,7 +26,7 @@ DEFAULT_INDEX = ROOT / "data" / "derived" / "public-index.json"
 PUBLIC_EXTENSIONS = {".csv", ".json", ".svg", ".html", ".js", ".css"}
 REVIEWED_SITE_SHA256 = {
     "site/app.js": "4ab61abf3df5043729dbf3f5a9a467cb2be7d0dad661ff278db63e6fd66503ea",
-    "site/index.html": "46fba262ea1a66059b120738ad3fb3503c0fccd5f9f6a8c6ca91da27bf740302",
+    "site/index.html": "34feb8469f300f81a9a139eff13a1bd7689acaac01077ddbbd1058f34cd54b43",
     "site/styles.css": "bf6a006ae123c3b2015de8e7a3e0c4dab9132f189ea41a189483bd6c59c26f8b",
 }
 PROHIBITED_FIELDS = {
@@ -108,10 +108,19 @@ MANIFEST_TOP_LEVEL_FIELDS = {
     "public_roots",
     "site_files",
     "source_project_policy",
+    "license_policy",
     "datasets",
     "charts",
 }
 PRIVACY_RULE_FIELDS = {"version", "minimum_group_size", "reviewed_at"}
+LICENSE_POLICY_FIELDS = {
+    "code",
+    "derived_data",
+    "chart_exports",
+    "site_content",
+    "policy_url",
+    "attribution",
+}
 DATASET_FIELDS = {
     "id",
     "title",
@@ -119,6 +128,9 @@ DATASET_FIELDS = {
     "type",
     "status",
     "last_verified",
+    "license",
+    "source_url",
+    "provenance",
     "privacy_note",
     "privacy_dimensions",
 }
@@ -129,11 +141,17 @@ CHART_FIELDS = {
     "type",
     "status",
     "source_dataset",
+    "last_verified",
+    "license",
+    "source_url",
+    "generator",
+    "generator_version",
     "privacy_note",
 }
 MANIFEST_JSON_FIELDS = (
     MANIFEST_TOP_LEVEL_FIELDS
     | PRIVACY_RULE_FIELDS
+    | LICENSE_POLICY_FIELDS
     | DATASET_FIELDS
     | CHART_FIELDS
 )
@@ -243,6 +261,35 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
             PRIVACY_RULE_FIELDS,
         )
     )
+    errors.extend(
+        _schema_errors(
+            "public-index.json: license_policy",
+            index.get("license_policy"),
+            LICENSE_POLICY_FIELDS,
+            LICENSE_POLICY_FIELDS,
+        )
+    )
+    license_policy = index.get("license_policy")
+    if isinstance(license_policy, dict):
+        expected_licenses = {
+            "code": "MIT",
+            "derived_data": "CC-BY-4.0",
+            "chart_exports": "CC-BY-4.0",
+            "site_content": "CC-BY-4.0",
+        }
+        for field, expected in expected_licenses.items():
+            if license_policy.get(field) != expected:
+                errors.append(
+                    f"public-index.json: license_policy.{field} must be {expected}"
+                )
+        if license_policy.get("policy_url") != "LICENSE-DATA.md":
+            errors.append(
+                "public-index.json: license_policy.policy_url must be LICENSE-DATA.md"
+            )
+        if not str(license_policy.get("attribution", "")).strip():
+            errors.append(
+                "public-index.json: license_policy.attribution must be non-empty"
+            )
 
     ids: list[tuple[str, str]] = []
     paths: list[tuple[str, str]] = [(index_path.as_posix(), "public index")]
@@ -275,6 +322,17 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
                 paths.append((PurePosixPath(item_path).as_posix(), label))
             else:
                 errors.append(f"{label}: path must be a non-empty string")
+            if item.get("license") != "CC-BY-4.0":
+                errors.append(f"{label}: license must be CC-BY-4.0")
+            for field in (
+                ("source_url", "source URL"),
+                ("provenance", "provenance") if collection == "datasets" else ("generator", "generator"),
+            ):
+                field_name, description = field
+                if not str(item.get(field_name, "")).strip():
+                    errors.append(f"{label}: {description} must be non-empty")
+            if collection == "charts" and not str(item.get("generator_version", "")).strip():
+                errors.append(f"{label}: generator_version must be non-empty")
             if collection == "datasets" and item.get("status") != "sample":
                 dimensions = item.get("privacy_dimensions")
                 normalized_dimensions = (
@@ -293,6 +351,20 @@ def validate_manifest(index: object, index_path: PurePath) -> list[str]:
                         f"{label}: real-derived dataset requires unique non-empty "
                         "privacy_dimensions disclosure"
                     )
+
+    dataset_paths = {
+        item.get("path")
+        for item in index.get("datasets", [])
+        if isinstance(item, dict) and isinstance(item.get("path"), str)
+    }
+    for position, chart in enumerate(index.get("charts", [])):
+        if not isinstance(chart, dict):
+            continue
+        if chart.get("source_dataset") not in dataset_paths:
+            errors.append(
+                "public-index.json: charts"
+                f"[{position}]: source_dataset must reference a listed dataset path"
+            )
 
     statuses = set()
     for collection in ("datasets", "charts"):

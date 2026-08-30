@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+GENERATOR_VERSION = "1.0"
 INPUT = ROOT / "data" / "derived" / "aggregate-summary.csv"
 OUTPUT = ROOT / "charts" / "exports" / "sample-content-category-share.svg"
 PLATFORM_INPUT = ROOT / "data" / "derived" / "platform-coverage-summary.csv"

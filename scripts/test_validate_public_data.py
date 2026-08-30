@@ -21,6 +21,9 @@ def _dataset(item_id: str, path: str) -> dict[str, object]:
         "type": "csv",
         "status": "real-derived",
         "last_verified": "2026-07-29",
+        "license": "CC-BY-4.0",
+        "source_url": "https://github.com/example/source",
+        "provenance": "Privacy-reviewed aggregate fixture.",
         "privacy_note": "Aggregate-only fixture.",
         "privacy_dimensions": ["aggregate_period", "category"],
     }
@@ -34,6 +37,11 @@ def _chart(item_id: str, path: str, source_dataset: str) -> dict[str, str]:
         "type": "svg",
         "status": "real-derived",
         "source_dataset": source_dataset,
+        "last_verified": "2026-07-29",
+        "license": "CC-BY-4.0",
+        "source_url": "https://github.com/example/source",
+        "generator": "scripts/fixture-generator.py",
+        "generator_version": "test",
         "privacy_note": "Aggregate-only fixture.",
     }
 
@@ -60,6 +68,14 @@ def _write_index(
         "public_roots": public_roots or ["data/derived"],
         "site_files": site_files or [],
         "source_project_policy": "Public aggregate fixtures only.",
+        "license_policy": {
+            "code": "MIT",
+            "derived_data": "CC-BY-4.0",
+            "chart_exports": "CC-BY-4.0",
+            "site_content": "CC-BY-4.0",
+            "policy_url": "LICENSE-DATA.md",
+            "attribution": "Fixture attribution.",
+        },
         "datasets": datasets or [],
         "charts": charts or [],
     }
@@ -93,6 +109,49 @@ def _site_probe_errors(relative: str, probe: str) -> list[str]:
 
 
 class PublicDataGateTests(unittest.TestCase):
+    def test_license_metadata_is_fail_closed(self) -> None:
+        index = json.loads(
+            (ROOT / "data" / "derived" / "public-index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+        without_policy = dict(index)
+        without_policy.pop("license_policy")
+        self.assertTrue(
+            any(
+                "license_policy" in error
+                for error in gate.validate_manifest(
+                    without_policy,
+                    PurePosixPath("data/derived/public-index.json"),
+                )
+            )
+        )
+
+        without_dataset_license = json.loads(json.dumps(index))
+        without_dataset_license["datasets"][0].pop("license")
+        self.assertTrue(
+            any(
+                "license" in error
+                for error in gate.validate_manifest(
+                    without_dataset_license,
+                    PurePosixPath("data/derived/public-index.json"),
+                )
+            )
+        )
+
+        without_chart_version = json.loads(json.dumps(index))
+        without_chart_version["charts"][0].pop("generator_version")
+        self.assertTrue(
+            any(
+                "generator_version" in error
+                for error in gate.validate_manifest(
+                    without_chart_version,
+                    PurePosixPath("data/derived/public-index.json"),
+                )
+            )
+        )
+
     def test_repository_publication_is_safe_at_k_10(self) -> None:
         errors, index, _ = gate.validate_publication(
             ROOT,

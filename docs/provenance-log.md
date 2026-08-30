@@ -2,6 +2,18 @@
 
 本紀錄只追蹤公開衍生資料與圖表的來源流程，不記錄原始資料內容。
 
+## 2026-08-31 Formal Public License Decision
+
+```yaml
+code_license: MIT
+derived_data_license: CC-BY-4.0
+chart_exports_license: CC-BY-4.0
+site_content_license: CC-BY-4.0
+policy: LICENSE-DATA.md
+machine_readable_manifest: data/derived/public-index.json
+notes: Public outputs retain dataset, source, provenance, generator, and license metadata. Privacy and correction/removal policy remains a separate publication boundary.
+```
+
 ## 2026-06-07 Initial Sample Data
 
 ```yaml
